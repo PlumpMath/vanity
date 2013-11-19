@@ -1,0 +1,3 @@
+[submodule "lib/polyvox"]
+	path = lib/polyvox
+	url = https://bitbucket.org/volumesoffun/polyvox.git
