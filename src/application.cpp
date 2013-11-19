@@ -137,7 +137,6 @@ void application::setup_resources()
       archName = i->second;
       Ogre::ResourceGroupManager::getSingleton().addResourceLocation(
           archName, typeName, secName);
-      std::cout << "woohoo " << archName << " " << typeName << " " << secName << std::endl;
     }
   }
 }
@@ -173,6 +172,9 @@ void application::go()
 
 bool application::setup()
 {
+  Ogre::LogManager * const lm(new Ogre::LogManager());
+  lm->createLog("rpg_log", true, false, false);
+
   m_root = new Ogre::Root(m_plugins_cfg);
 
   setup_resources();
