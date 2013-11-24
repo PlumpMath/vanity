@@ -1,0 +1,10 @@
+
+CMakeCache.txt
+CMakeFiles/
+Makefile
+Ogre.log
+cmake_install.cmake
+dist/bin/rpg_log
+gen_cmake
+install_manifest.txt
+

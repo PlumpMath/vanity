@@ -2,6 +2,9 @@ cmake_minimum_required(VERSION 2.6)
  
 project(rpg)
  
+#set(CMAKE_CXX_COMPILER "g++-4.9")
+#set(CMAKE_CXX_COMPILER "clang++")
+
 if(WIN32)
 	set(CMAKE_MODULE_PATH "$ENV{OGRE_HOME}/CMake/;${CMAKE_MODULE_PATH}")
 	set(OGRE_SAMPLES_INCLUDEPATH
@@ -89,16 +92,10 @@ include_directories(
   ${OIS_INCLUDE_DIRS}
 	${OGRE_INCLUDE_DIRS}
 	${OGRE_SAMPLES_INCLUDEPATH}
-  lib/polyvox/library/PolyVoxCore/include
 )
-find_library(PolyVoxCore libPolyVoxCore.a
-             PATHS lib/polyvox/lib/lib
-  )
-find_library(PolyVoxUtil libPolyVoxUtil.a
-             PATHS lib/polyvox/lib/lib
-  )
 
-add_definitions(-std=c++11)
+add_definitions(-std=c++11 -ggdb -Wall -pedantic)
+#add_definitions(-std=c++11 -stdlib=libc++ -ggdb )#-Wall -pedantic)
  
 add_executable(rpg WIN32 ${HDRS} ${SRCS})
  
@@ -107,8 +104,6 @@ set_target_properties(rpg PROPERTIES DEBUG_POSTFIX _d)
 target_link_libraries(rpg ${OGRE_LIBRARIES}
                           ${OIS_LIBRARIES}
                           boost_system
-                          ${PolyVoxCore}
-                          ${PolyVoxUtil}
 )
  
 file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/dist/bin)

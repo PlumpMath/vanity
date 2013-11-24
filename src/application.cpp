@@ -301,7 +301,7 @@ bool application::keyPressed( const OIS::KeyEvent &arg )
         break;
       case Ogre::PM_WIREFRAME:
         newVal = "Points";
-        pm = Ogre::PM_POINTS;
+        pm = Ogre::PM_SOLID;
         break;
       default:
         newVal = "Solid";

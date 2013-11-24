@@ -1,3 +1,14 @@
+/*
+  Copyright 2013 Jesse 'Jeaye' Wilkerson
+  See licensing in LICENSE file, or at:
+    http://www.opensource.org/licenses/BSD-3-Clause
+
+  File: main.cpp
+  Author: Jesse 'Jeaye' Wilkerson
+  Description:
+    TODO
+*/
+
 #include "rpg_application.h"
 
 #if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
