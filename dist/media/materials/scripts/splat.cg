@@ -1,0 +1,119 @@
+/*
+  Copyright 2013 Jesse 'Jeaye' Wilkerson
+  See licensing in LICENSE file, or at:
+    http://www.opensource.org/licenses/BSD-3-Clause
+
+  File: splat.cg
+  Author: Jesse 'Jeaye' Wilkerson
+  Description:
+    TODO
+*/
+
+void splat_vs
+(
+    float4 in_pos : POSITION,
+    float3 in_norm : NORMAL,
+    float2 in_coord : TEXCOORD0,
+
+    uniform float4x4 wvp,
+
+    out float4 out_vert : POSITION,
+    out float3 out_pos : TEXCOORD0,
+    out float3 out_norm : TEXCOORD1,
+    out float2 out_coord : TEXCOORD2
+)
+{
+
+  out_vert = mul(wvp, in_pos);
+
+  out_pos = in_pos.xyz / in_pos.w;
+  out_norm = in_norm;
+  out_coord = in_coord;
+}
+
+void splat_fs
+(
+    in float4 in_pos : TEXCOORD0,
+    in float3 in_norm : TEXCOORD1,
+    in float2 in_coord : TEXCOORD2,
+    uniform sampler2D diffuse : register(s0),
+    uniform sampler2D alpha : register(s1),
+    out float4 out_col : COLOR
+)
+{
+  /* Get the color weights from the alpha splat texture. */
+  float2 splat_coord = in_coord;
+
+  /* Upperleft corner of each tile. */
+  //float2 offset1 = { 0.04125, 0.04125 };
+  //float2 offset2 = { 0.54125, 0.04125 };
+  //float2 offset3 = { 0.04125, 0.54125 };
+  //float2 offset4 = { 0.54125, 0.54125 };
+  float2 offset1 = { 0.03125, 0.03125 };
+  float2 offset2 = { 0.53125, 0.03125 };
+  float2 offset3 = { 0.03125, 0.53125 };
+  float2 offset4 = { 0.53125, 0.53125 };
+
+  //in_coord = in_pos.xz;
+  //in_coord.x += (abs(in_norm.x) * in_pos.y);
+  //in_coord.x += (abs(1.0 - in_norm.y) * (in_pos.x + in_pos.z));
+  //in_coord.y += (abs(in_norm.z) * in_pos.y);
+
+  float3 v1 = float3(1.0, 1.0, 1.0) - in_norm;
+  float d = abs(dot(normalize(in_norm), normalize(float3(1.0, 1.0, 1.0))));
+  if(d > 0.9)
+  { v1 = float3(1.0, 0.0, -1.0); }
+  float3 v2 = cross(in_norm, v1);
+  float3 nv1 = normalize(v1);
+  float3 nv2 = normalize(v2);
+  in_coord = abs(float2((in_pos.x * nv1.x + in_pos.y * nv1.y + in_pos.z * nv1.z),
+                        (in_pos.x * nv2.x + in_pos.y * nv2.y + in_pos.z * nv2.z)));
+
+  /* Mod the coords by 0.5 to account for each tile only being half of the texture axis.
+     Multiply by 0.875 to account for the size of the texture, minus the 32 pixel border. */
+  in_coord = fmod(in_coord * 0.02, float2(0.5, 0.5)) * 0.875;
+
+  /* Get the color for each texture by offsetting the coordinates. */
+  float4 col1 = tex2D(diffuse, in_coord + offset1);
+  float4 col2 = tex2D(diffuse, in_coord + offset2);
+  float4 col3 = tex2D(diffuse, in_coord + offset3);
+  float4 col4 = tex2D(diffuse, in_coord + offset4);
+
+  /* Get the weights from the alpha map. */
+  float4 al = tex2D(alpha, splat_coord); 
+  al /= (al.x + al.y + al.z + al.w).xxxx;
+
+  out_col = al.x * col1 + 
+            al.y * col2 + 
+            al.z * col3 + 
+            al.w * col4;
+}
+
+  /*
+     float2 offset1 = {0.03125,0.03125};
+     float2 offset2 = {0.53125,0.03125};
+     float2 offset3 = {0.03125,0.53125};
+     float2 offset4 = {0.53125,0.53125};
+
+  // these values can be modified later so it's not hard coded into the shader.
+  float2 scale = { 20.0, 20.0 };
+
+  // Is this the line that's causing problems?
+
+  //   first, scale the coordinates
+  const float2 unwrappedUV = iCoord1 * scale;
+
+  //   next, fmod it with 0.5, because each texture is actually half the size of the full texture
+  //      so our texture coordinates range from 0 to 0.5, rather than 0 to 1.0
+  //   then multiply it by 0.875, which is size of the texture, minus the 32 pixel border (242 pixels)
+  iCoord1 = fmod( unwrappedUV, float2(0.5,0.5))*0.875;
+
+  const float2 dx = ddx( unwrappedUV );
+  const float2 dy = ddy( unwrappedUV );
+
+  // get the colour for each texture by offsetting the coordinates
+  float4 col1 = tex2D(tex3, iCoord1 + offset1, dx, dy );
+  float4 col2 = tex2D(tex3, iCoord1 + offset2, dx, dy );
+  float4 col3 = tex2D(tex3, iCoord1 + offset3, dx, dy );
+  float4 col4 = tex2D(tex3, iCoord1 + offset4, dx, dy );
+   */

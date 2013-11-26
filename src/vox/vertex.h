@@ -16,5 +16,12 @@
 namespace vox
 {
   struct vertex_p
-  { vec3<float> p; };
+  {
+    vertex_p() = default;
+    vertex_p(vec3<float> const &vp)
+      : p(vp)
+    { }
+
+    vec3<float> p;
+  };
 }

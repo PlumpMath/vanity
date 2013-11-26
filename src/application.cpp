@@ -172,8 +172,8 @@ void application::go()
 
 bool application::setup()
 {
-  Ogre::LogManager * const lm(new Ogre::LogManager());
-  lm->createLog("rpg_log", true, false, false);
+  //Ogre::LogManager * const lm(new Ogre::LogManager());
+  //lm->createLog("rpg_log", true, false, false);
 
   m_root = new Ogre::Root(m_plugins_cfg);
 

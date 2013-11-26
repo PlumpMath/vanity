@@ -8,3 +8,6 @@ dist/bin/rpg_log
 gen_cmake
 install_manifest.txt
 
+rpg
+rpg_d
+

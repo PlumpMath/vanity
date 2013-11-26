@@ -171,10 +171,10 @@ namespace vox
         triangles.reserve(5);
         for(size_t i{}; tri_table[cube_index][i] != -1; i += 3)
         {
-          triangles.push_back({
+          triangles.push_back(Triangle(
               verts[tri_table[cube_index][i]],
               verts[tri_table[cube_index][i + 1]],
-              verts[tri_table[cube_index][i + 2]] });
+              verts[tri_table[cube_index][i + 2]] ));
         }
 
         return triangles;
