@@ -13,13 +13,16 @@
 
 #include <OgreVector3.h>
 
+#include "vertex.h"
+
 namespace vox
 {
-  template <typename Vertex>
-  struct triangle
+  struct triangle_p
   {
-    triangle() = default;
-    triangle(Vertex const &v0, Vertex const &v1, Vertex const &v2)
+    using vertex_t = vertex_p;
+
+    triangle_p() = default;
+    triangle_p(vertex_t const &v0, vertex_t const &v1, vertex_t const &v2)
       : verts({ v0, v1, v2})
     { calculate_normal(); }
 
@@ -35,7 +38,7 @@ namespace vox
       normal.normalise();
     }
 
-    Vertex verts[3];
+    vertex_t verts[3];
     Ogre::Vector3 normal{ 0.0f, 1.0f, 0.0f };
   };
 }

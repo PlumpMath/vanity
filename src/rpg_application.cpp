@@ -89,10 +89,10 @@ void rpg_application::update_surface()
 {
   int32_t const size{ static_cast<int32_t>(m_volume->get_region().get_width()) };
 
-  vox::surface_extractor<vox::triangle<vox::vertex_p>,
+  vox::surface_extractor<vox::triangle_p,
                          vox::fixed_volume<uint8_t>> extractor
                            { *m_volume, m_volume->get_region(), 128, m_unit_size };
-  vox::surface<vox::triangle<vox::vertex_p>> surface{ extractor() };
+  vox::surface<vox::triangle_p> surface{ extractor() };
   std::cout << "triangles: " << surface.get_triangles().size() << std::endl;
 
   m_ogre_volume->clear();
