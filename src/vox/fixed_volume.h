@@ -13,6 +13,7 @@
 
 #include <vector>
 #include <functional>
+#include <future>
 
 #include "region.h"
 
@@ -52,12 +53,38 @@ namespace vox
       void fill(fill_func_t const &func)
       {
         std::cout << "filling volume" << std::endl;
-        m_data.resize(m_region.get_width());
-        for(size_t x{}; x < m_region.get_width(); ++x)
-        {
-          if(x % (m_region.get_width() / 10) == 0)
-          { std::cout << "  " << (x * 100.0f / m_region.get_width()) << "%" << std::endl; }
 
+        auto const size(m_region.get_width());
+        m_data.resize(size);
+
+        std::mutex loaded_mutex;
+        size_t loaded{};
+        fill_region(func, 0, size, [&](size_t const chunk)
+        {
+          std::lock_guard<std::mutex> guard(loaded_mutex);
+          loaded += chunk;
+          std::cout << "loaded " << (loaded * 100.0f / size) << "%" << std::endl;
+        });
+
+        std::cout << "volume filled" << std::endl;
+      }
+
+      void fill_region(fill_func_t const &func,
+                       size_t const start_x, size_t const end_x,
+                       std::function<void (size_t const)> const &report)
+      {
+        if(start_x == end_x)
+        { return; }
+
+        auto const weighted(std::max<size_t>(64, std::min<size_t>(256, (end_x - start_x) / 8)));
+        auto const width(std::min<size_t>(weighted, (end_x - start_x)));
+
+        auto fut(std::async(std::launch::async, 
+                            std::bind(&fixed_volume<Value>::fill_region,
+                                      this, func, start_x + width, end_x, report )));
+
+        for(size_t x{ start_x }; x < width + start_x; ++x)
+        {
           m_data[x].resize(m_region.get_height());
           for(size_t y{}; y < m_region.get_height(); ++y)
           {
@@ -66,7 +93,7 @@ namespace vox
             { m_data[x][y][z] = func({ x, y, z }); }
           }
         }
-        std::cout << "volume filled" << std::endl;
+        report(width);
       }
 
       container_t m_data;

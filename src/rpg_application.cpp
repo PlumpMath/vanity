@@ -26,6 +26,8 @@
 #include "vox/triangle.h"
 #include "vox/vertex.h"
 
+#include "borrowed_ptr.h"
+
 rpg_application::rpg_application()
 {
 }
@@ -40,22 +42,21 @@ void rpg_application::create_scene()
   img.load("heightmap.jpg", "General");
 
   int32_t const size{ static_cast<int32_t>(img.getWidth() * 0.5f) };
-  //int32_t const size{ 128 };
   float const scale{ static_cast<float>(size) / img.getWidth() };
   std::cout << "size: " << size << std::endl;
   std::cout << "scale: " << scale << std::endl;
 
+  std::cout << "\nvoxelizing..." << std::endl;
+  auto const start(std::chrono::system_clock::now());
   m_volume.reset(new vox::fixed_volume<uint8_t>({ size, size, size }, [&](vox::vec3<size_t> const &vec)
   {
     auto const col(img.getColourAt((vec.x / scale), (vec.z / scale), 0).r / 2.0f);
     return (vec.y <= size * col) ? 255 : 0;
-    //Ogre::Vector3 const p{ vec.x, vec.y, vec.z };
-    //Ogre::Real const d{ (p - Ogre::Vector3(size / 2.0f, size / 2.0f, size / 2.0f)).length() };
-    //if(d <= 30)
-    //{ return 255; }
-    //else
-    //{ return 0; }
   }));
+  auto const end(std::chrono::system_clock::now());
+  std::cout << "voxelized: "
+    << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count()
+    << "ms" << std::endl << std::endl;
 
   m_camera->setPosition(Ogre::Vector3(-size, size, size));
   auto const size2(size >> 1);
@@ -64,20 +65,6 @@ void rpg_application::create_scene()
   m_ogre_volume = m_scene_mgr->createManualObject("manual");
   m_ogre_volume->setDynamic(true);
   update_surface();
-
-  Ogre::MaterialManager& lMaterialManager = Ogre::MaterialManager::getSingleton();
-  Ogre::MaterialPtr lMaterial{ lMaterialManager.create("M_TEX", "General") };
-  Ogre::Technique *lFirstTechnique{ lMaterial->getTechnique(0) };
-  Ogre::Pass *lFirstPass{ lFirstTechnique->getPass(0) };
-  lFirstPass->setLightingEnabled(true);
-
-  // We create the TextureUnit and tell it to use a specific texture (using it's name).
-  // The texture must be available in a resourcegroup at render time.
-  Ogre::TextureUnitState *lTextureUnit{ lFirstPass->createTextureUnitState() };
-  lTextureUnit->setTextureName("grass.jpg", Ogre::TEX_TYPE_2D);
-  lTextureUnit->setTextureCoordSet(0);
-
-  //m_ogre_volume->setMaterialName("M_TEX");
   m_scene_mgr->getRootSceneNode()->createChildSceneNode()->attachObject(m_ogre_volume);
 
   std::cout << "initializing lighting" << std::endl;
@@ -97,7 +84,6 @@ void rpg_application::update_surface()
 
   m_ogre_volume->clear();
   m_ogre_volume->begin("splat", Ogre::RenderOperation::OT_TRIANGLE_LIST);
-  //m_ogre_volume->begin("triPlanarMaterial1", Ogre::RenderOperation::OT_TRIANGLE_LIST);
 
   auto const &triangles(surface.get_triangles());
   for(size_t i(0); i < triangles.size(); ++i)
@@ -150,96 +136,3 @@ bool rpg_application::keyPressed(OIS::KeyEvent const &arg)
 
   return application::keyPressed(arg);
 }
-
-//void rpg_application::create_scene()
-//{
-//  Ogre::Image map;
-//  map.load("heightmap.png", "General");
-//  std::cout << "texture size is " << map.getWidth() << "x" << map.getHeight() << std::endl;
-//
-//  auto const center((map.getWidth() >> 1) * 2);
-//  auto const center2(center << 1);
-//  auto reg(PolyVox::Region(PolyVox::Vector3DInt32(0, 0, 0), PolyVox::Vector3DInt32(center2, 256, center2)));
-//
-//  PolyVox::RawVolume<uint8_t> tempVolume(reg);
-//  PolyVox::LargeVolume<uint8_t> volData(reg);
-//
-//  std::cout << "populating volume from heightmap with scale " << (center2 / map.getWidth()) << std::endl;
-//  {
-//    auto const start(std::chrono::system_clock::now());
-//    createHeightmapInVolume(tempVolume, map, center2 / map.getWidth());
-//    auto const end(std::chrono::system_clock::now());
-//    std::cout << "took "
-//              << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count()
-//              << "ms" << std::endl;
-//  }
-//
-//  m_camera->setPosition(Ogre::Vector3(center, center, center));
-//
-//  std::cout << "smoothing volume" << std::endl;
-//  {
-//    auto const start(std::chrono::system_clock::now());
-//    PolyVox::LowPassFilter< PolyVox::RawVolume<uint8_t>, PolyVox::LargeVolume<uint8_t>, int16_t > pass2(&tempVolume, PolyVox::Region(volData.getEnclosingRegion()), &volData, PolyVox::Region(volData.getEnclosingRegion()), 7);
-//    pass2.executeSAT();
-//    auto const end(std::chrono::system_clock::now());
-//    std::cout << "took "
-//              << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count()
-//              << "ms" << std::endl;
-//  }
-//
-//  PolyVox::SurfaceMesh<PolyVox::PositionMaterialNormal> mesh;
-//
-//  std::cout << "creating extractor" << std::endl;
-//  PolyVox::MarchingCubesSurfaceExtractor< PolyVox::LargeVolume<uint8_t> > surfaceExtractor(&volData, volData.getEnclosingRegion(), &mesh);
-//
-//  std::cout << "extracting into mesh" << std::endl;
-//  {
-//    auto const start(std::chrono::system_clock::now());
-//    surfaceExtractor.execute();
-//    auto const end(std::chrono::system_clock::now());
-//    std::cout << "took "
-//              << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count()
-//              << "ms" << std::endl;
-//  }
-//
-//  // Set the scene's ambient light
-//  m_scene_mgr->setAmbientLight(Ogre::ColourValue(0.5f, 0.5f, 0.5f));
-//
-//  std::cout << "creating mesh with " << mesh.getNoOfVertices() << " verts" << std::endl;
-//
-//  //Create a ManualObject
-//  Ogre::ManualObject* manual = m_scene_mgr->createManualObject("manual");
-//
-//  //Begin a section of the ManualObject (we're only using one section)
-//  manual->begin("BaseWhiteNoLighting", Ogre::RenderOperation::OT_TRIANGLE_LIST);
-//
-//  //Iterate through all the vertices in the mesh produced by the surface extractor
-//  //and add them to the ManualObject section.
-//  for(std::vector<PolyVox::PositionMaterialNormal>::const_iterator it = mesh.getVertices().begin(); it != mesh.getVertices().end(); ++it)
-//  {
-//    const PolyVox::Vector3DFloat& vertexPos = it->getPosition();
-//    const PolyVox::Vector3DFloat& vertexNorm = it->getNormal();
-//    manual->position(vertexPos.getX(),vertexPos.getY(),vertexPos.getZ());
-//    manual->normal(vertexNorm.getX(),vertexNorm.getY(),vertexNorm.getZ());
-//    if(vertexPos.getY() > 64)
-//    { manual->colour(vertexPos.getY() / 128.0f, 0.0f, 0.0f); }
-//    else if(vertexPos.getY() > 32)
-//    { manual->colour(vertexPos.getY() / 128.0f, vertexPos.getY() / 128.0f, 0.0f); }
-//    else
-//    { manual->colour(0.0f, 0.0f, vertexPos.getY() / 128.0f); }
-//  }
-//
-//  //Now we iterate through all the indices from the mesh and also add them to the ManualObject section
-//  for(auto const it : mesh.getIndices())
-//  { manual->index(it); }
-//
-//  //End the section then add the ManualObject to the scenegraph
-//  manual->end();
-//  m_scene_mgr->getRootSceneNode()->createChildSceneNode()->attachObject(manual);
-//
-//  std::cout << "initializing lighting" << std::endl;
-//
-//  // Create a Light and set its position
-//  Ogre::Light* light = m_scene_mgr->createLight("MainLight");
-//  light->setPosition(20.0f, 80.0f, 50.0f);
-//}
