@@ -26,8 +26,6 @@
 #include "vox/triangle.h"
 #include "vox/vertex.h"
 
-#include "borrowed_ptr.h"
-
 rpg_application::rpg_application()
 {
 }

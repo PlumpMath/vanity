@@ -17,6 +17,8 @@
 #include <SdkTrays.h>
 #include <SdkCameraMan.h>
 
+#include "borrowed_ptr.h"
+
 class application
     : public Ogre::FrameListener
     , public Ogre::WindowEventListener
@@ -43,39 +45,41 @@ protected:
     virtual void create_resource_listener();
     virtual void load_resources();
 
-    // Ogre::FrameListener
+    /*** Ogre::FrameListener. ***/
     virtual bool frameRenderingQueued(Ogre::FrameEvent const &evt) override;
 
-    // OIS::KeyListener
+    /*** OIS::KeyListener. ***/
     bool keyPressed(OIS::KeyEvent const &arg) override;
     bool keyReleased(OIS::KeyEvent const &arg) override;
-    // OIS::MouseListener
+
+    /*** OIS::MouseListener. ***/
     bool mouseMoved(OIS::MouseEvent const &arg) override;
     bool mousePressed(OIS::MouseEvent const &arg, OIS::MouseButtonID id) override;
     bool mouseReleased(OIS::MouseEvent const &arg, OIS::MouseButtonID id) override;
 
-    // Ogre::WindowEventListener
-    //Adjust mouse clipping area
+    /*** Ogre::WindowEventListener. ***/
+    /* Adjust mouse clipping area. */
     void windowResized(Ogre::RenderWindow *rw) override;
-    //Unattach OIS before window shutdown (very important under Linux)
+    /* Unattach OIS before window shutdown (very important under Linux). */
     void windowClosed(Ogre::RenderWindow *rw) override;
 
-    Ogre::Root *m_root{ nullptr };
-    Ogre::Camera *m_camera{ nullptr };
-    Ogre::SceneManager *m_scene_mgr{ nullptr };
-    Ogre::RenderWindow *m_window{ nullptr };
+    /* Scene */
+    std::unique_ptr<Ogre::Root> m_root{ nullptr };
+    borrowed_ptr<Ogre::Camera> m_camera{ nullptr };
+    borrowed_ptr<Ogre::SceneManager> m_scene_mgr{ nullptr };
+    borrowed_ptr<Ogre::RenderWindow> m_window{ nullptr };
     Ogre::String m_resources_cfg;
     Ogre::String m_plugins_cfg;
 
-    // OgreBites
-    OgreBites::SdkTrayManager *m_tray_mgr{ nullptr };
-    OgreBites::SdkCameraMan *m_camera_mgr{ nullptr };
-    OgreBites::ParamsPanel *m_details_panel{ nullptr };
+    /* OgreBites. */
+    std::unique_ptr<OgreBites::SdkTrayManager> m_tray_mgr{ nullptr };
+    std::unique_ptr<OgreBites::SdkCameraMan> m_camera_mgr{ nullptr };
+    borrowed_ptr<OgreBites::ParamsPanel> m_details_panel{ nullptr };
     bool m_cursorWasVisible{ false };
     bool m_shutDown{ false };
 
-    //OIS Input devices
-    OIS::InputManager *m_input_mgr{ nullptr };
-    OIS::Mouse *m_mouse{ nullptr };
-    OIS::Keyboard *m_keyboard{ nullptr };
+    /* OIS Input devices. */
+    borrowed_ptr<OIS::InputManager> m_input_mgr{ nullptr };
+    borrowed_ptr<OIS::Mouse> m_mouse{ nullptr };
+    borrowed_ptr<OIS::Keyboard> m_keyboard{ nullptr };
 };
