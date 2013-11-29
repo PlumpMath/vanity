@@ -30,27 +30,21 @@ fragment_program splat_fp cg
 
 material splat
 {
+  receive_shadows on
+
   technique
   {
     pass
     {
-      //lighting on
-      ambient 1 1 1 1
-      diffuse 1 1 1 1
-    }
-    pass
-    {
-      //lighting on
-      scene_blend alpha_blend
-      depth_write off
+      lighting off
+      //scene_blend alpha_blend
+      //depth_func equal
 
       vertex_program_ref splat_vp
-      {
-      }
+      { }
 
       fragment_program_ref splat_fp
-      {
-      }
+      { }
 
       texture_unit
       {
@@ -63,6 +57,28 @@ material splat
         texture alpha.png 2d 0
         tex_address_mode wrap
       }
+
+      texture_unit
+      {
+        texture combined2.jpg 2d 0
+        tex_address_mode wrap
+      }
+
+      texture_unit
+      {
+        texture alpha2.png 2d 0
+        tex_address_mode wrap
+      }
+    }
+
+    /* Lighting pass. */
+    pass
+    {
+      ambient 0.8 0.8 0.8 1
+      diffuse 0.4 0.4 0.4 
+
+      depth_func equal
+      scene_blend zero src_colour
     }
   }
 }

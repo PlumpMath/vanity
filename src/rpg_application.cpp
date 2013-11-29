@@ -39,14 +39,14 @@ void rpg_application::create_scene()
   Ogre::Image img;
   img.load("heightmap.jpg", "General");
 
-  int32_t const size{ static_cast<int32_t>(img.getWidth() * 0.5f) };
+  int32_t const size{ static_cast<int32_t>(img.getWidth() * 1.0f) };
   float const scale{ static_cast<float>(size) / img.getWidth() };
   std::cout << "size: " << size << std::endl;
   std::cout << "scale: " << scale << std::endl;
 
   std::cout << "\nvoxelizing..." << std::endl;
   auto const start(std::chrono::system_clock::now());
-  m_volume.reset(new vox::fixed_volume<uint8_t>({ size, size, size }, [&](vox::vec3<size_t> const &vec)
+  m_volume.reset(new vox::fixed_volume<uint8_t>({ size, 256 * 1.5f, size }, [&](vox::vec3<size_t> const &vec)
   {
     auto const col(img.getColourAt((vec.x / scale), (vec.z / scale), 0).r / 2.0f);
     return (vec.y <= size * col) ? 255 : 0;

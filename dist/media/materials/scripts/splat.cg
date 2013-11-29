@@ -36,8 +36,10 @@ void splat_fs
     in float4 in_pos : TEXCOORD0,
     in float3 in_norm : TEXCOORD1,
     in float2 in_coord : TEXCOORD2,
-    uniform sampler2D diffuse : register(s0),
-    uniform sampler2D alpha : register(s1),
+    uniform sampler2D diffuse1 : register(s0),
+    uniform sampler2D alpha1 : register(s1),
+    uniform sampler2D diffuse2 : register(s2),
+    uniform sampler2D alpha2 : register(s4),
     out float4 out_col : COLOR
 )
 {
@@ -74,19 +76,30 @@ void splat_fs
   in_coord = fmod(in_coord * 0.02, float2(0.5, 0.5)) * 0.875;
 
   /* Get the color for each texture by offsetting the coordinates. */
-  float4 col1 = tex2D(diffuse, in_coord + offset1);
-  float4 col2 = tex2D(diffuse, in_coord + offset2);
-  float4 col3 = tex2D(diffuse, in_coord + offset3);
-  float4 col4 = tex2D(diffuse, in_coord + offset4);
+  float4 col1_1 = tex2D(diffuse1, in_coord + offset1);
+  float4 col1_2 = tex2D(diffuse1, in_coord + offset2);
+  float4 col1_3 = tex2D(diffuse1, in_coord + offset3);
+  float4 col1_4 = tex2D(diffuse1, in_coord + offset4);
+
+  float4 col2_1 = tex2D(diffuse2, in_coord + offset1);
+  float4 col2_2 = tex2D(diffuse2, in_coord + offset2);
+  float4 col2_3 = tex2D(diffuse2, in_coord + offset3);
+  float4 col2_4 = tex2D(diffuse2, in_coord + offset4);
 
   /* Get the weights from the alpha map. */
-  float4 al = tex2D(alpha, splat_coord); 
-  al /= (al.x + al.y + al.z + al.w).xxxx;
+  float4 al1 = tex2D(alpha1, splat_coord); 
+  al1 /= (al1.x + al1.y + al1.z + al1.w).xxxx;
+  float4 al2 = tex2D(alpha2, splat_coord); 
+  al2 /= (al2.x + al2.y + al2.z + al2.w).xxxx;
 
-  out_col = al.x * col1 + 
-            al.y * col2 + 
-            al.z * col3 + 
-            al.w * col4;
+  out_col = al1.x * col1_1 + 
+            al1.y * col1_2 + 
+            al1.z * col1_3 + 
+            al1.w * col1_4;
+  out_col *= al2.x * col2_1 + 
+             al2.y * col2_2 + 
+             al2.z * col2_3 + 
+             al2.w * col2_4;
 }
 
   /*

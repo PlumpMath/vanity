@@ -13,10 +13,10 @@ class rpg_application : public application
 {
   public:
     rpg_application();
-    virtual ~rpg_application();
+    ~rpg_application();
 
   protected:
-    virtual void create_scene() override;
+    void create_scene() override;
     bool keyPressed(OIS::KeyEvent const &arg) override;
 
   private:
