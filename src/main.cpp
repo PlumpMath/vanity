@@ -9,7 +9,7 @@
     TODO
 */
 
-#include "rpg_application.h"
+#include "game.h"
 
 #if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
 #define WIN32_LEAN_AND_MEAN
@@ -27,7 +27,7 @@ extern "C"
   int main(int argc, char **argv)
 #endif
   {
-    rpg_application app;
+    game app;
 
     try
     { app.go(); }

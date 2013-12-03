@@ -3,13 +3,13 @@
   See licensing in LICENSE file, or at:
     http://www.opensource.org/licenses/BSD-3-Clause
 
-  File: rpg_application.h
+  File: game.h
   Author: Jesse 'Jeaye' Wilkerson
   Description:
     TODO
 */
 
-#include "rpg_application.h"
+#include "game.h"
 
 #include <iostream>
 #include <vector>
@@ -26,20 +26,35 @@
 #include "vox/triangle.h"
 #include "vox/vertex.h"
 
-rpg_application::rpg_application()
+static inline CEGUI::MouseButton convert_button(OIS::MouseButtonID const id)
+{
+  switch(id)
+  {
+    case OIS::MB_Left:
+      return CEGUI::LeftButton;
+    case OIS::MB_Right:
+      return CEGUI::RightButton;
+    case OIS::MB_Middle:
+      return CEGUI::MiddleButton;
+    default:
+      return CEGUI::LeftButton;
+  }
+}
+
+game::game()
 {
 }
 
-rpg_application::~rpg_application()
+game::~game()
 {
 }
 
-void rpg_application::create_scene()
+void game::create_scene()
 {
   Ogre::Image img;
   img.load("heightmap.jpg", "General");
 
-  int32_t const size{ static_cast<int32_t>(img.getWidth() * 1.0f) };
+  int32_t const size{ static_cast<int32_t>(img.getWidth() * 0.5f) };
   float const scale{ static_cast<float>(size) / img.getWidth() };
   std::cout << "size: " << size << std::endl;
   std::cout << "scale: " << scale << std::endl;
@@ -68,9 +83,34 @@ void rpg_application::create_scene()
   std::cout << "initializing lighting" << std::endl;
   Ogre::Light * const light{ m_scene_mgr->createLight("MainLight") };
   light->setPosition(size / 2.0f, size, size / 2.0f);
+
+  m_gui_renderer = &CEGUI::OgreRenderer::bootstrapSystem();
+
+  CEGUI::ImageManager::setImagesetDefaultResourceGroup("Imagesets");
+  CEGUI::Font::setDefaultResourceGroup("Fonts");
+  CEGUI::Scheme::setDefaultResourceGroup("Schemes");
+  CEGUI::WidgetLookManager::setDefaultResourceGroup("LookNFeel");
+  CEGUI::WindowManager::setDefaultResourceGroup("Layouts");
+
+  CEGUI::SchemeManager::getSingleton().createFromFile("TaharezLook.scheme");
+  CEGUI::System::getSingleton().getDefaultGUIContext().getMouseCursor().
+                                setDefaultImage("TaharezLook/MouseArrow");
+  CEGUI::System::getSingleton().getDefaultGUIContext().getMouseCursor().
+    setImage(CEGUI::System::getSingleton().getDefaultGUIContext().getMouseCursor().getDefaultImage());
+
+  //CEGUI::WindowManager& wmgr = CEGUI::WindowManager::getSingleton();
+  //CEGUI::Window* myRoot = wmgr.createWindow( "DefaultWindow", "root" );
+  //CEGUI::System::getSingleton().getDefaultGUIContext().setRootWindow( myRoot );
+
+  //CEGUI::FrameWindow* fWnd = static_cast<CEGUI::FrameWindow*>(
+  //    wmgr.createWindow( "TaharezLook/FrameWindow", "testWindow" ));
+  //myRoot->addChild(fWnd);
+
+  CEGUI::Window* myRoot = CEGUI::WindowManager::getSingleton().loadLayoutFromFile( "test.layout" );
+  CEGUI::System::getSingleton().getDefaultGUIContext().setRootWindow( myRoot );
 }
 
-void rpg_application::update_surface()
+void game::update_surface()
 {
   int32_t const size{ static_cast<int32_t>(m_volume->get_region().get_width()) };
 
@@ -114,7 +154,7 @@ void rpg_application::update_surface()
   m_ogre_volume->end();
 }
 
-bool rpg_application::keyPressed(OIS::KeyEvent const &arg)
+bool game::key_pressed(OIS::KeyEvent const &arg)
 {
   if(arg.key == OIS::KC_C)
   { update_surface(); }
@@ -132,5 +172,58 @@ bool rpg_application::keyPressed(OIS::KeyEvent const &arg)
     std::cout << "unit size: " << m_unit_size << std::endl;
   }
 
-  return application::keyPressed(arg);
+  CEGUI::GUIContext &context( CEGUI::System::getSingleton().getDefaultGUIContext() );
+  context.injectKeyDown((CEGUI::Key::Scan)arg.key);
+  context.injectChar((CEGUI::Key::Scan)arg.text);
+
+  m_camera_mgr->injectKeyDown(arg);
+
+  return true;
+}
+
+bool game::key_released(OIS::KeyEvent const &arg)
+{
+  m_camera_mgr->injectKeyUp(arg);
+
+  CEGUI::System::getSingleton().getDefaultGUIContext().injectKeyUp((CEGUI::Key::Scan)arg.key);
+
+  return true;
+}
+
+bool game::frame_rendering_queued(Ogre::FrameEvent const &evt)
+{
+  CEGUI::System::getSingleton().injectTimePulse(evt.timeSinceLastFrame);
+
+  return true;
+}
+
+bool game::mouse_moved(OIS::MouseEvent const &arg)
+{
+  //m_camera_mgr->injectMouseMove(arg);
+
+  CEGUI::System &sys = CEGUI::System::getSingleton();
+  sys.getDefaultGUIContext().injectMouseMove(arg.state.X.rel, arg.state.Y.rel);
+
+  if(arg.state.Z.rel)
+  { sys.getDefaultGUIContext().injectMouseWheelChange(arg.state.Z.rel / 120.0f); }
+
+  return true;
+}
+
+bool game::mouse_pressed(OIS::MouseEvent const &arg, OIS::MouseButtonID const id)
+{
+  m_camera_mgr->injectMouseDown(arg, id);
+
+  CEGUI::System::getSingleton().getDefaultGUIContext().injectMouseButtonDown(convert_button(id));
+
+  return true;
+}
+
+bool game::mouse_released(OIS::MouseEvent const &arg, OIS::MouseButtonID const id)
+{
+  m_camera_mgr->injectMouseUp(arg, id);
+
+  CEGUI::System::getSingleton().getDefaultGUIContext().injectMouseButtonUp(convert_button(id));
+
+  return true;
 }

@@ -46,22 +46,28 @@ protected:
     virtual void load_resources();
 
     /*** Ogre::FrameListener. ***/
-    virtual bool frameRenderingQueued(Ogre::FrameEvent const &evt) override;
+    bool frameRenderingQueued(Ogre::FrameEvent const &evt) override final;
+    virtual bool frame_rendering_queued(Ogre::FrameEvent const &evt) { return true; }
 
     /*** OIS::KeyListener. ***/
-    bool keyPressed(OIS::KeyEvent const &arg) override;
-    bool keyReleased(OIS::KeyEvent const &arg) override;
+    bool keyPressed(OIS::KeyEvent const &arg) override final;
+    bool keyReleased(OIS::KeyEvent const &arg) override final;
+    virtual bool key_pressed(OIS::KeyEvent const &arg) = 0;
+    virtual bool key_released(OIS::KeyEvent const &arg) = 0;
 
     /*** OIS::MouseListener. ***/
-    bool mouseMoved(OIS::MouseEvent const &arg) override;
-    bool mousePressed(OIS::MouseEvent const &arg, OIS::MouseButtonID id) override;
-    bool mouseReleased(OIS::MouseEvent const &arg, OIS::MouseButtonID id) override;
+    bool mouseMoved(OIS::MouseEvent const &arg) override final;
+    bool mousePressed(OIS::MouseEvent const &arg, OIS::MouseButtonID id) override final;
+    bool mouseReleased(OIS::MouseEvent const &arg, OIS::MouseButtonID id) override final;
+    virtual bool mouse_moved(OIS::MouseEvent const &arg) = 0;
+    virtual bool mouse_pressed(OIS::MouseEvent const &arg, OIS::MouseButtonID const id) = 0;
+    virtual bool mouse_released(OIS::MouseEvent const &arg, OIS::MouseButtonID const id) = 0;
 
     /*** Ogre::WindowEventListener. ***/
     /* Adjust mouse clipping area. */
-    void windowResized(Ogre::RenderWindow *rw) override;
+    void windowResized(Ogre::RenderWindow *rw) override final;
     /* Unattach OIS before window shutdown (very important under Linux). */
-    void windowClosed(Ogre::RenderWindow *rw) override;
+    void windowClosed(Ogre::RenderWindow *rw) override final;
 
     /* Scene */
     std::unique_ptr<Ogre::Root> m_root{ nullptr };
@@ -70,13 +76,10 @@ protected:
     borrowed_ptr<Ogre::RenderWindow> m_window{ nullptr };
     Ogre::String m_resources_cfg;
     Ogre::String m_plugins_cfg;
+    bool m_shutdown{ false };
 
     /* OgreBites. */
-    std::unique_ptr<OgreBites::SdkTrayManager> m_tray_mgr{ nullptr };
     std::unique_ptr<OgreBites::SdkCameraMan> m_camera_mgr{ nullptr };
-    borrowed_ptr<OgreBites::ParamsPanel> m_details_panel{ nullptr };
-    bool m_cursorWasVisible{ false };
-    bool m_shutDown{ false };
 
     /* OIS Input devices. */
     borrowed_ptr<OIS::InputManager> m_input_mgr{ nullptr };
