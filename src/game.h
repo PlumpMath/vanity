@@ -5,9 +5,6 @@
 
 #include <OgreManualObject.h>
 
-#include <CEGUI/CEGUI.h>
-#include <CEGUI/RendererModules/Ogre/Renderer.h>
-
 #include "application.h"
 #include "vox/fixed_volume.h"
 #include "borrowed_ptr.h"
@@ -35,6 +32,5 @@ class game : public application
 
     std::unique_ptr<vox::fixed_volume<uint8_t>> m_volume;
     borrowed_ptr<Ogre::ManualObject> m_ogre_volume{ nullptr };
-    borrowed_ptr<CEGUI::OgreRenderer> m_gui_renderer{ nullptr };
     size_t m_unit_size{ 16 };
 };

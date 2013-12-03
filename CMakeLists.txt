@@ -91,7 +91,6 @@ set(SRCS
 include_directories(
   ${OIS_INCLUDE_DIRS}
 	${OGRE_INCLUDE_DIRS}
-  /usr/include/cegui-0
 )
 
 add_definitions(-std=c++11 -ggdb -Wall -pedantic)
@@ -103,8 +102,6 @@ set_target_properties(rpg PROPERTIES DEBUG_POSTFIX _d)
 target_link_libraries(rpg ${OGRE_LIBRARIES}
                           ${OIS_LIBRARIES}
                           boost_system
-                          CEGUIBase-0
-                          CEGUIOgreRenderer-0
 )
  
 file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/dist/bin)
