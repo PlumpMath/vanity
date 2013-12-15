@@ -49,14 +49,26 @@ void application::create_camera()
 
 void application::create_frame_listener()
 {
-  Ogre::LogManager::getSingletonPtr()->logMessage("*** Initializing OIS ***");
   OIS::ParamList pl;
-  size_t windowHnd{ 0 };
+  size_t windowHnd{};
   std::ostringstream windowHndStr;
 
   m_window->getCustomAttribute("WINDOW", &windowHnd);
   windowHndStr << windowHnd;
   pl.insert({"WINDOW", windowHndStr.str()});
+
+  /* Show the cursor and don't capture everything. */
+#if defined OIS_WIN32_PLATFORM
+  pl.insert({"w32_mouse", "DISCL_FOREGROUND"});
+  pl.insert({"w32_mouse", "DISCL_NONEXCLUSIVE"});
+  pl.insert({"w32_keyboard", "DISCL_FOREGROUND"});
+  pl.insert({"w32_keyboard", "DISCL_NONEXCLUSIVE"});
+#elif defined OIS_LINUX_PLATFORM
+  pl.insert({"x11_mouse_grab", "false"});
+  pl.insert({"x11_mouse_hide", "false"});
+  pl.insert({"x11_keyboard_grab", "false"});
+  pl.insert({"XAutoRepeatOn", "true"});
+#endif
 
   m_input_mgr = OIS::InputManager::createInputSystem(pl);
 
@@ -196,7 +208,10 @@ bool application::keyPressed(OIS::KeyEvent const &arg)
   if(arg.key == OIS::KC_F5) 
   { Ogre::TextureManager::getSingleton().reloadAll(); }
   else if (arg.key == OIS::KC_SYSRQ)
-  { m_window->writeContentsToTimestampedFile("screenshot", ".png"); }
+  {
+    m_window->writeContentsToTimestampedFile("screenshot", ".png");
+    std::cout << "Screenshot saved." << std::endl;
+  }
   else if (arg.key == OIS::KC_ESCAPE)
   { m_shutdown = true; }
 

@@ -17,7 +17,7 @@
 #include <SdkTrays.h>
 #include <SdkCameraMan.h>
 
-#include "borrowed_ptr.h"
+#include "util/borrowed_ptr.h"
 
 class application
     : public Ogre::FrameListener

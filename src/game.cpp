@@ -3,10 +3,8 @@
   See licensing in LICENSE file, or at:
     http://www.opensource.org/licenses/BSD-3-Clause
 
-  File: game.h
+  File: game.cpp
   Author: Jesse 'Jeaye' Wilkerson
-  Description:
-    TODO
 */
 
 #include "game.h"
@@ -26,6 +24,9 @@
 #include "vox/triangle.h"
 #include "vox/vertex.h"
 
+#include "ui/window.h"
+#include "ui/input_dispatcher.h"
+
 game::game()
 {
 }
@@ -38,15 +39,17 @@ void game::create_scene()
 {
   Ogre::Image img;
   img.load("heightmap.jpg", "General");
+  std::cout << "heightmap size: " << img.getWidth() << "x" << img.getHeight() << std::endl;
 
-  int32_t const size{ static_cast<int32_t>(img.getWidth() * 0.5f) };
+  int32_t const size{ static_cast<int32_t>(img.getWidth() * 1.0f) };
   float const scale{ static_cast<float>(size) / img.getWidth() };
   std::cout << "size: " << size << std::endl;
   std::cout << "scale: " << scale << std::endl;
 
   std::cout << "\nvoxelizing..." << std::endl;
   auto const start(std::chrono::system_clock::now());
-  m_volume.reset(new vox::fixed_volume<uint8_t>({ size, 256 * 1.5f, size }, [&](vox::vec3<size_t> const &vec)
+  m_volume.reset(new vox::fixed_volume<uint8_t>({ size, 256 * 1.5f, size },
+  [&](vox::vec3<size_t> const &vec)
   {
     auto const col(img.getColourAt((vec.x / scale), (vec.z / scale), 0).r / 2.0f);
     return (vec.y <= size * col) ? 255 : 0;
@@ -60,7 +63,7 @@ void game::create_scene()
   auto const size2(size >> 1);
   m_camera->lookAt(Ogre::Vector3(size2, 0.0f, size2));
 
-  m_ogre_volume = m_scene_mgr->createManualObject("manual");
+  m_ogre_volume = m_scene_mgr->createManualObject("terrain");
   m_ogre_volume->setDynamic(true);
   update_surface();
   m_scene_mgr->getRootSceneNode()->createChildSceneNode()->attachObject(m_ogre_volume);
@@ -68,6 +71,10 @@ void game::create_scene()
   std::cout << "initializing lighting" << std::endl;
   Ogre::Light * const light{ m_scene_mgr->createLight("MainLight") };
   light->setPosition(size / 2.0f, size, size / 2.0f);
+
+  //(new ui::window(m_scene_mgr, "file:///home/jeaye/projects/rpg/dist/ui/header/index.html", 1024, 100));
+  (new ui::window(m_scene_mgr, "http://github.com", 1024, 768));
+  //(new ui::window(m_scene_mgr, "http://store.steampowered.com/", 400, 300));
 }
 
 void game::update_surface()
@@ -134,12 +141,16 @@ bool game::key_pressed(OIS::KeyEvent const &arg)
 
   m_camera_mgr->injectKeyDown(arg);
 
+  ui::input_dispatcher::global().key_pressed(arg);
+
   return true;
 }
 
 bool game::key_released(OIS::KeyEvent const &arg)
 {
   m_camera_mgr->injectKeyUp(arg);
+
+  ui::input_dispatcher::global().key_released(arg);
 
   return true;
 }
@@ -151,7 +162,9 @@ bool game::frame_rendering_queued(Ogre::FrameEvent const &evt)
 
 bool game::mouse_moved(OIS::MouseEvent const &arg)
 {
-  m_camera_mgr->injectMouseMove(arg);
+  //m_camera_mgr->injectMouseMove(arg);
+
+  ui::input_dispatcher::global().mouse_moved(arg);
 
   return true;
 }
@@ -160,12 +173,16 @@ bool game::mouse_pressed(OIS::MouseEvent const &arg, OIS::MouseButtonID const id
 {
   m_camera_mgr->injectMouseDown(arg, id);
 
+  ui::input_dispatcher::global().mouse_pressed(arg, id);
+
   return true;
 }
 
 bool game::mouse_released(OIS::MouseEvent const &arg, OIS::MouseButtonID const id)
 {
   m_camera_mgr->injectMouseUp(arg, id);
+
+  ui::input_dispatcher::global().mouse_released(arg, id);
 
   return true;
 }

@@ -86,11 +86,38 @@ set(SRCS
   src/main.cpp
 	src/application.cpp
 	src/game.cpp
+  src/shared/ui/window.cpp
+  src/shared/ui/input_dispatcher.cpp
 )
  
 include_directories(
   ${OIS_INCLUDE_DIRS}
 	${OGRE_INCLUDE_DIRS}
+  src
+  src/shared
+
+  lib/cef_linux_x64
+  lib/cef_linux_x64/include
+  lib/cef_stable
+  lib/cef_stable/include
+
+  /usr/include/gtk-2.0
+  /usr/lib/gtk-2.0/include
+  /usr/include/gdk-pixbuf-2.0
+  /usr/include/pango-1.0
+  /usr/include/glib-2.0
+  /usr/lib/glib-2.0/include
+  /usr/include/cairo
+  /usr/include/atk-1.0
+)
+
+find_library(CEF_LIBRARY
+    NAMES cef
+    HINTS "lib/cef_stable"
+)
+find_library(CEF_DLL_LIBRARY
+    NAMES cef_dll_wrapper
+    HINTS "lib/cef_stable"
 )
 
 add_definitions(-std=c++11 -ggdb -Wall -pedantic)
@@ -102,6 +129,8 @@ set_target_properties(rpg PROPERTIES DEBUG_POSTFIX _d)
 target_link_libraries(rpg ${OGRE_LIBRARIES}
                           ${OIS_LIBRARIES}
                           boost_system
+                          ${CEF_LIBRARY}
+                          ${CEF_DLL_LIBRARY}
 )
  
 file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/dist/bin)

@@ -48,7 +48,7 @@ material splat
 
       texture_unit
       {
-        texture combined.jpg 2d 0
+        texture combined.png 2d 0
         tex_address_mode wrap
       }
 
@@ -60,7 +60,7 @@ material splat
 
       texture_unit
       {
-        texture combined2.jpg 2d 0
+        texture combined2.png 2d 0
         tex_address_mode wrap
       }
 

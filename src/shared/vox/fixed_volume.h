@@ -76,6 +76,7 @@ namespace vox
         if(start_x == end_x)
         { return; }
 
+        /* Clamp between 64 and 256, but aim for whatever suits 8 threads. */
         auto const weighted(std::max<size_t>(64, std::min<size_t>(256, (end_x - start_x) / 8)));
         auto const width(std::min<size_t>(weighted, (end_x - start_x)));
 

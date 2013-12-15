@@ -1,0 +1,49 @@
+/*
+  Copyright 2013 Jesse 'Jeaye' Wilkerson
+  See licensing in LICENSE file, or at:
+    http://www.opensource.org/licenses/BSD-3-Clause
+
+  File: ui.material
+  Author: Jesse 'Jeaye' Wilkerson
+  Description:
+    TODO
+*/
+
+vertex_program ui_vp cg
+{
+  source ui.cg										
+  entry_point ui_vs								
+  profiles vs_2_0 arbvp1										
+
+  default_params
+  {																	
+    param_named_auto vp_width viewport_width 
+    param_named_auto vp_height viewport_height 
+  }	
+}
+
+fragment_program ui_fp cg 
+{
+  source ui.cg
+  entry_point ui_fs
+  profiles ps_1_1 arbfp1
+}
+
+material ortho_ui
+{
+  technique
+  {
+    pass
+    {
+      lighting off
+
+      vertex_program_ref ui_vp
+      { }
+
+      fragment_program_ref ui_fp
+      { }
+    }
+  }
+}
+
+

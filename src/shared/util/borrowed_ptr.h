@@ -30,8 +30,6 @@ class borrowed_ptr
 
     T* get()
     { return m_ptr; }
-    T const * get() const
-    { return m_ptr; }
 
     void reset(T * const ptr)
     { m_ptr = ptr; }
@@ -46,16 +44,16 @@ class borrowed_ptr
     { return m_ptr; }
     operator T*()
     { return m_ptr; }
-    operator T const *() const
+    operator T*() const
     { return m_ptr; }
 
     T& operator *()
     { assert(m_ptr); return *m_ptr; }
-    T const & operator *() const
+    T& operator *() const
     { assert(m_ptr); return *m_ptr; }
     T* operator ->()
     { assert(m_ptr); return m_ptr; }
-    T const * operator ->() const
+    T* operator ->() const
     { assert(m_ptr); return m_ptr; }
 
     borrowed_ptr<T>& operator =(T * const ptr)
