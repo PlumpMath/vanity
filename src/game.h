@@ -9,6 +9,9 @@
 #include "vox/fixed_volume.h"
 #include "util/borrowed_ptr.h"
 
+namespace ui
+{ class server; }
+
 class game : public application
 {
   public:
@@ -35,4 +38,5 @@ class game : public application
     borrowed_ptr<Ogre::ManualObject> m_ogre_volume{ nullptr };
     size_t m_unit_size{ 16 };
     std::unique_ptr<Ogre::Image> m_heightmap;
+    std::unique_ptr<ui::server> m_ui_server;
 };

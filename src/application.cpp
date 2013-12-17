@@ -1,3 +1,14 @@
+/*
+  Copyright 2013 Jesse 'Jeaye' Wilkerson
+  See licensing in LICENSE file, or at:
+    http://www.opensource.org/licenses/BSD-3-Clause
+
+  File: application.cpp
+  Author: Jesse 'Jeaye' Wilkerson
+  Description:
+    Undoubtedly copied from sample code.
+*/
+
 #include "application.h"
 
 application::~application()
@@ -9,13 +20,8 @@ application::~application()
 
 bool application::configure()
 {
-  // Show the configuration dialog and initialise the system
-  // You can skip this and use root.restoreConfig() to load configuration
-  // settings if you were sure there are valid ones saved in ogre.cfg
   if(m_root->showConfigDialog())
   {
-    // If returned true, user clicked OK so initialise
-    // Here we choose to let the system create a default rendering window by passing 'true'
     m_window = m_root->initialise(true, "Window");
 
     return true;
@@ -26,13 +32,11 @@ bool application::configure()
 
 void application::choose_scene_manager()
 {
-  /* Get the SceneManager; in this case, a generic one. */
   m_scene_mgr = m_root->createSceneManager(Ogre::ST_GENERIC);
 }
 
 void application::create_camera()
 {
-  /* Create the camera. */
   m_camera = m_scene_mgr->createCamera("PlayerCam");
 
   /* Look back along -Z. */
@@ -43,7 +47,6 @@ void application::create_camera()
 
   m_camera_mgr.reset(new OgreBites::SdkCameraMan(m_camera));
 
-  /* Setup some basic lighting. */
   m_scene_mgr->setAmbientLight(Ogre::ColourValue(0.5f, 0.5f, 0.5f));
 }
 
@@ -81,9 +84,8 @@ void application::create_frame_listener()
   /* Set initial mouse clipping size. */
   windowResized(m_window);
 
-  /* Register as a window listener. */
+  /* Register as a window and frame listener. */
   Ogre::WindowEventUtilities::addWindowEventListener(m_window, this);
-
   m_root->addFrameListener(this);
 }
 
@@ -94,7 +96,7 @@ void application::destroy_scene()
 void application::create_viewports()
 {
   /* Create one viewport, filling the entire window. */
-  Ogre::Viewport* vp = m_window->addViewport(m_camera);
+  Ogre::Viewport * const vp{ m_window->addViewport(m_camera) };
   vp->setBackgroundColour(Ogre::ColourValue(0,0,0));
 
   /* Alter the camera aspect ratio to match the viewport. */
@@ -109,18 +111,17 @@ void application::setup_resources()
   cf.load(m_resources_cfg);
 
   /* Go through all sections & settings in the file. */
-  Ogre::ConfigFile::SectionIterator seci = cf.getSectionIterator();
+  Ogre::ConfigFile::SectionIterator seci{ cf.getSectionIterator() };
 
   Ogre::String secName, typeName, archName;
   while(seci.hasMoreElements())
   {
     secName = seci.peekNextKey();
-    Ogre::ConfigFile::SettingsMultiMap *settings = seci.getNext();
-    Ogre::ConfigFile::SettingsMultiMap::iterator i;
-    for(i = settings->begin(); i != settings->end(); ++i)
+    Ogre::ConfigFile::SettingsMultiMap * const settings{ seci.getNext() };
+    for(auto const &i : *settings)
     {
-      typeName = i->first;
-      archName = i->second;
+      typeName = i.first;
+      archName = i.second;
       Ogre::ResourceGroupManager::getSingleton().addResourceLocation(
           archName, typeName, secName);
     }
@@ -158,8 +159,8 @@ void application::go()
 
 bool application::setup()
 {
-  //Ogre::LogManager * const lm(new Ogre::LogManager());
-  //lm->createLog("rpg_log", true, false, false);
+  Ogre::LogManager * const lm{ new Ogre::LogManager() };
+  lm->createLog("rpg_log", true, false, false);
 
   m_root.reset(new Ogre::Root(m_plugins_cfg));
 
@@ -200,17 +201,20 @@ bool application::frameRenderingQueued(Ogre::FrameEvent const &evt)
   /* If dialog isn't up, then update the camera. */
   m_camera_mgr->frameRenderingQueued(evt);
 
-  return true;
+  return frame_rendering_queued(evt);
 }
 
 bool application::keyPressed(OIS::KeyEvent const &arg)
 {
   if(arg.key == OIS::KC_F5) 
-  { Ogre::TextureManager::getSingleton().reloadAll(); }
+  {
+    Ogre::TextureManager::getSingleton().reloadAll();
+    std::cout << "All textures reloaded" << std::endl;
+  }
   else if (arg.key == OIS::KC_SYSRQ)
   {
     m_window->writeContentsToTimestampedFile("screenshot", ".png");
-    std::cout << "Screenshot saved." << std::endl;
+    std::cout << "Screenshot saved" << std::endl;
   }
   else if (arg.key == OIS::KC_ESCAPE)
   { m_shutdown = true; }
@@ -227,7 +231,7 @@ bool application::mouseMoved(OIS::MouseEvent const &arg)
 bool application::mousePressed(OIS::MouseEvent const &arg, OIS::MouseButtonID id)
 { return mouse_pressed(arg, id); }
 
-bool application::mouseReleased( const OIS::MouseEvent &arg, OIS::MouseButtonID id )
+bool application::mouseReleased(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
 { return mouse_released(arg, id); }
 
 void application::windowResized(Ogre::RenderWindow *rw)
@@ -250,7 +254,9 @@ void application::windowClosed(Ogre::RenderWindow *rw)
     if(m_input_mgr)
     {
       m_input_mgr->destroyInputObject(m_mouse);
+      m_mouse = nullptr;
       m_input_mgr->destroyInputObject(m_keyboard);
+      m_keyboard = nullptr;
 
       OIS::InputManager::destroyInputSystem(m_input_mgr);
       m_input_mgr = nullptr;

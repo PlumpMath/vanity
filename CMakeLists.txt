@@ -78,8 +78,25 @@ if (NOT OGRE_BUILD_PLATFORM_IPHONE)
 endif()
  
 set(HDRS
-	src/application.h
-	src/game.h
+  src/application.h
+  src/game.h
+  src/shared/util/borrowed_ptr.h
+
+  src/shared/vox/triangle.h
+  src/shared/vox/surface_extractor.h
+  src/shared/vox/region.h
+  src/shared/vox/grid_cell.h
+  src/shared/vox/tables.h
+  src/shared/vox/vec3.h
+  src/shared/vox/vertex.h
+  src/shared/vox/fixed_volume.h
+  src/shared/vox/surface.h
+
+  src/shared/ui/surface_factory.h
+  src/shared/ui/window.h
+  src/shared/ui/input_dispatcher.h
+  src/shared/ui/surface.h
+  src/shared/ui/server.h
 )
  
 set(SRCS
@@ -88,6 +105,7 @@ set(SRCS
 	src/game.cpp
   src/shared/ui/window.cpp
   src/shared/ui/input_dispatcher.cpp
+  src/shared/ui/surface.cpp
 )
  
 include_directories(
@@ -96,10 +114,7 @@ include_directories(
   src
   src/shared
 
-  lib/cef_linux_x64
-  lib/cef_linux_x64/include
-  lib/cef_stable
-  lib/cef_stable/include
+  lib/awesomium_linux_x64/include
 
   /usr/include/gtk-2.0
   /usr/lib/gtk-2.0/include
@@ -111,13 +126,9 @@ include_directories(
   /usr/include/atk-1.0
 )
 
-find_library(CEF_LIBRARY
-    NAMES cef
-    HINTS "lib/cef_stable"
-)
-find_library(CEF_DLL_LIBRARY
-    NAMES cef_dll_wrapper
-    HINTS "lib/cef_stable"
+find_library(AWESOMIUM_LIBRARY
+    NAMES awesomium-1-7
+    HINTS "lib/awesomium_linux_x64/bin"
 )
 
 add_definitions(-std=c++11 -ggdb -Wall -pedantic)
@@ -129,8 +140,7 @@ set_target_properties(rpg PROPERTIES DEBUG_POSTFIX _d)
 target_link_libraries(rpg ${OGRE_LIBRARIES}
                           ${OIS_LIBRARIES}
                           boost_system
-                          ${CEF_LIBRARY}
-                          ${CEF_DLL_LIBRARY}
+                          ${AWESOMIUM_LIBRARY}
 )
  
 file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/dist/bin)

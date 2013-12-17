@@ -24,8 +24,13 @@
 #include "vox/triangle.h"
 #include "vox/vertex.h"
 
+#include <Awesomium/WebCore.h>
+#include <Awesomium/BitmapSurface.h>
+#include <Awesomium/STLHelpers.h>
+
 #include "ui/window.h"
 #include "ui/input_dispatcher.h"
+#include "ui/server.h"
 
 game::game()
 {
@@ -41,7 +46,7 @@ void game::create_scene()
   img.load("heightmap.jpg", "General");
   std::cout << "heightmap size: " << img.getWidth() << "x" << img.getHeight() << std::endl;
 
-  int32_t const size{ static_cast<int32_t>(img.getWidth() * 1.0f) };
+  int32_t const size{ static_cast<int32_t>(img.getWidth() * 0.1f) };
   float const scale{ static_cast<float>(size) / img.getWidth() };
   std::cout << "size: " << size << std::endl;
   std::cout << "scale: " << scale << std::endl;
@@ -72,9 +77,9 @@ void game::create_scene()
   Ogre::Light * const light{ m_scene_mgr->createLight("MainLight") };
   light->setPosition(size / 2.0f, size, size / 2.0f);
 
-  //(new ui::window(m_scene_mgr, "file:///home/jeaye/projects/rpg/dist/ui/header/index.html", 1024, 100));
-  (new ui::window(m_scene_mgr, "http://github.com", 1024, 768));
-  //(new ui::window(m_scene_mgr, "http://store.steampowered.com/", 400, 300));
+  m_ui_server.reset(new ui::server(m_scene_mgr));
+  auto *win(new std::unique_ptr<ui::window>(m_ui_server->create_window("http://duckduckgo.com", 1024, 768)));
+  (*win)->focus();
 }
 
 void game::update_surface()
@@ -157,6 +162,7 @@ bool game::key_released(OIS::KeyEvent const &arg)
 
 bool game::frame_rendering_queued(Ogre::FrameEvent const &evt)
 {
+  m_ui_server->update();
   return true;
 }
 

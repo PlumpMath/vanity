@@ -11,8 +11,6 @@
 
 #include "game.h"
 
-#include <cef_app.h>
-
 #if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
 #define WIN32_LEAN_AND_MEAN
 #include "windows.h"
@@ -29,22 +27,6 @@ extern "C"
   int main(int argc, char **argv)
 #endif
   {
-    CefMainArgs args(argc, argv);
-    int const code{ CefExecuteProcess(args, nullptr, nullptr) };
-    //int const code{ CefExecuteProcess(args, nullptr) };
-    if(code >= 0) /* A child proccess has ended, so exit. */
-    { return code; }
-    else if(code == -1)
-    {
-      /* This is the parent process. */
-    }
-
-    CefSettings settings;
-    bool const result{ CefInitialize(args, settings, nullptr, nullptr) };
-    //bool const result{ CefInitialize(args, settings, nullptr) };
-    if(!result)
-    { return -1; }
-
     game app;
     try
     { app.go(); }
@@ -63,8 +45,6 @@ extern "C"
     { std::cerr << "An exception was thrown: " << e.what() << std::endl; }
     catch(...)
     { std::cerr << "An unkown exception was thrown" << std::endl; }
-
-    CefShutdown();
   }
 
 #ifdef __cplusplus
