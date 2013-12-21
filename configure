@@ -59,7 +59,7 @@ fi
 log() { $ECHO "$@" 1>&2; }
 
 # Project
-PROJECT=rpg
+PROJECT=vanity
 
 log "Configuring $PROJECT"
 
@@ -94,14 +94,45 @@ pushd $SWD
   git submodule update --recursive --init
 popd
 
-log "Building polyvox"
-mkdir -p $SWD/lib/polyvox/build
-pushd $SWD/lib/polyvox/build
-  mkdir -p ../lib
-  cmake .. -DCMAKE_INSTALL_PREFIX:PATH=../lib -DLIBRARY_TYPE=STATIC
-  make clean
-  make -j4 install &
+# Setup Awesomium
+log "Updating Awesomium"
+mkdir -p $SWD/lib_remote/awesomium
+pushd $SWD/lib_remote/awesomium
+  if [ "1" -eq "$UNAME_LINUX" ];
+  then
+    AWESOMIUM_LIB="awesomium_1_7_2_sdk_linux64.tar.gz"
+    AWESOMIUM_DOWNLOAD="http://www.awesomium.com/downloads/$AWESOMIUM_LIB"
+  elif [ "1" -eq "$UNAME_OSX" ];
+  then
+    AWESOMIUM_LIB="awesomium_1_7_3_sdk_mac.dmg"
+    AWESOMIUM_DOWNLOAD="http://www.awesomium.com/downloads/$AWESOMIUM_LIB"
+  elif [ "1" -eq "$UNAME_CYGWIN" ];
+  then
+    AWESOMIUM_LIB="awesomium_1_7_3_sdk_win.exe"
+    AWESOMIUM_DOWNLOAD="http://www.awesomium.com/downloads/$AWESOMIUM_LIB"
+  fi
+
+  # Project file says whether or not we're setup
+  if [ -e "$PROJECT" ];
+  then
+    log "Awesomium already up to date"
+  else
+    rm -rf ./*
+    log "Downloading $AWESOMIUM_DOWNLOAD"
+    wget -nc "$AWESOMIUM_DOWNLOAD"
+    tar zxf "$AWESOMIUM_LIB"
+    rm -f "$AWESOMIUM_LIB"
+    mv -n awesomium*/* .
+    rmdir awesomium*
+
+    touch "$PROJECT"
+    log "Awesomium updated"
+  fi
 popd
+
+# Update cmake files
+log "Configuring cmake"
+cmake $SWD/CMakeLists.txt -DCMAKE_BUILD_TYPE=Debug
 
 log "Waiting for background jobs"
 wait

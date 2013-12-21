@@ -4,14 +4,16 @@ CMakeFiles/
 Makefile
 Ogre.log
 cmake_install.cmake
-dist/bin/rpg_log
+dist/bin/vanity_log
 gen_cmake
 install_manifest.txt
 
-rpg
-rpg_d
+vanity
+vanity_d
 debug
 tags
 types_c.taghl
+
+lib_remote
 
 tmp

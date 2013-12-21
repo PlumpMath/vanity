@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 2.6)
  
-project(rpg)
+project(vanity)
  
 #set(CMAKE_CXX_COMPILER "g++-4.9")
 #set(CMAKE_CXX_COMPILER "clang++")
@@ -114,7 +114,7 @@ include_directories(
   src
   src/shared
 
-  lib/awesomium_linux_x64/include
+  lib_remote/awesomium/include
 
   /usr/include/gtk-2.0
   /usr/lib/gtk-2.0/include
@@ -128,16 +128,16 @@ include_directories(
 
 find_library(AWESOMIUM_LIBRARY
     NAMES awesomium-1-7
-    HINTS "lib/awesomium_linux_x64/bin"
+    HINTS "lib_remote/awesomium/bin"
 )
 
 add_definitions(-std=c++11 -ggdb -Wall -pedantic)
  
-add_executable(rpg WIN32 ${HDRS} ${SRCS})
+add_executable(vanity WIN32 ${HDRS} ${SRCS})
  
-set_target_properties(rpg PROPERTIES DEBUG_POSTFIX _d)
+set_target_properties(vanity PROPERTIES DEBUG_POSTFIX _d)
  
-target_link_libraries(rpg ${OGRE_LIBRARIES}
+target_link_libraries(vanity ${OGRE_LIBRARIES}
                           ${OIS_LIBRARIES}
                           boost_system
                           ${AWESOMIUM_LIBRARY}
@@ -148,9 +148,9 @@ file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/dist/media)
  
 # post-build copy for win32
 if(WIN32 AND NOT MINGW)
-	add_custom_command( TARGET rpg PRE_BUILD
+	add_custom_command( TARGET vanity PRE_BUILD
 		COMMAND if not exist .\\dist\\bin mkdir .\\dist\\bin )
-	add_custom_command( TARGET rpg POST_BUILD
+	add_custom_command( TARGET vanity POST_BUILD
 		COMMAND copy \"$(TargetPath)\" .\\dist\\bin )
 endif(WIN32 AND NOT MINGW)
 
@@ -160,7 +160,7 @@ endif(MINGW OR UNIX)
  
 if(WIN32)
  
-	install(TARGETS rpg
+	install(TARGETS vanity
 		RUNTIME DESTINATION bin
 		CONFIGURATIONS All)
  
@@ -216,7 +216,7 @@ endif(WIN32)
 
 if(UNIX)
  
-	install(TARGETS rpg
+	install(TARGETS vanity
 		RUNTIME DESTINATION bin
 		CONFIGURATIONS All)
  
