@@ -10,6 +10,7 @@
 */
 
 #include "application.h"
+#include "log/logger.h"
 
 application::~application()
 {
@@ -209,12 +210,12 @@ bool application::keyPressed(OIS::KeyEvent const &arg)
   if(arg.key == OIS::KC_F5) 
   {
     Ogre::TextureManager::getSingleton().reloadAll();
-    std::cout << "All textures reloaded" << std::endl;
+    log_info("All textures reloaded");
   }
   else if (arg.key == OIS::KC_SYSRQ)
   {
     m_window->writeContentsToTimestampedFile("screenshot", ".png");
-    std::cout << "Screenshot saved" << std::endl;
+    log_info("Screenshot saved");
   }
   else if (arg.key == OIS::KC_ESCAPE)
   { m_shutdown = true; }

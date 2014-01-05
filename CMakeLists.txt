@@ -4,6 +4,7 @@ project(vanity)
  
 #set(CMAKE_CXX_COMPILER "g++-4.9")
 #set(CMAKE_CXX_COMPILER "clang++")
+#add_definitions(-stdlib=libc++)
 
 if(WIN32)
 	set(CMAKE_MODULE_PATH "$ENV{OGRE_HOME}/CMake/;${CMAKE_MODULE_PATH}")
@@ -106,6 +107,7 @@ set(SRCS
   src/shared/ui/window.cpp
   src/shared/ui/input_dispatcher.cpp
   src/shared/ui/surface.cpp
+  src/shared/log/logger.cpp
 )
  
 include_directories(

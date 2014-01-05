@@ -32,6 +32,8 @@
 #include "ui/input_dispatcher.h"
 #include "ui/server.h"
 
+#include "log/logger.h"
+
 game::game()
 {
 }
@@ -42,27 +44,31 @@ game::~game()
 
 void game::create_scene()
 {
+  log_debug("Creating scene");
+  log_scoped_push();
+
   Ogre::Image img;
   img.load("heightmap.jpg", "General");
-  std::cout << "heightmap size: " << img.getWidth() << "x" << img.getHeight() << std::endl;
+  log_info("heightmap size: %%x%%", img.getWidth(), img.getHeight());
 
   int32_t const size{ static_cast<int32_t>(img.getWidth() * 0.1f) };
   float const scale{ static_cast<float>(size) / img.getWidth() };
-  std::cout << "size: " << size << std::endl;
-  std::cout << "scale: " << scale << std::endl;
+  log_info("size: %%", size);
+  log_info("scale: %%", scale);
 
-  std::cout << "\nvoxelizing..." << std::endl;
+  log_info("voxelizing...");
+  log_push();
   auto const start(std::chrono::system_clock::now());
-  m_volume.reset(new vox::fixed_volume<uint8_t>({ size, 256 * 1.5f, size },
+  m_volume.reset(new vox::fixed_volume<uint8_t>({ size, static_cast<size_t>(256 * 1.5f), size },
   [&](vox::vec3<size_t> const &vec)
   {
     auto const col(img.getColourAt((vec.x / scale), (vec.z / scale), 0).r / 2.0f);
     return (vec.y <= size * col) ? 255 : 0;
   }));
   auto const end(std::chrono::system_clock::now());
-  std::cout << "voxelized: "
-    << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count()
-    << "ms" << std::endl << std::endl;
+  log_pop();
+  log_info("voxelized: %%ms",
+      std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count());
 
   m_camera->setPosition(Ogre::Vector3(-size, size, size));
   auto const size2(size >> 1);
@@ -73,7 +79,7 @@ void game::create_scene()
   update_surface();
   m_scene_mgr->getRootSceneNode()->createChildSceneNode()->attachObject(m_ogre_volume);
 
-  std::cout << "initializing lighting" << std::endl;
+  log_info("initializing lighting");
   Ogre::Light * const light{ m_scene_mgr->createLight("MainLight") };
   light->setPosition(size / 2.0f, size, size / 2.0f);
 
@@ -90,7 +96,7 @@ void game::update_surface()
                          vox::fixed_volume<uint8_t>> extractor
                            { *m_volume, m_volume->get_region(), 128, m_unit_size };
   vox::surface<vox::triangle_p> surface{ extractor() };
-  std::cout << "triangles: " << surface.get_triangles().size() << std::endl;
+  log_debug("triangles: %%", surface.get_triangles().size());
 
   m_ogre_volume->clear();
   m_ogre_volume->begin("splat", Ogre::RenderOperation::OT_TRIANGLE_LIST);
@@ -134,14 +140,14 @@ bool game::key_pressed(OIS::KeyEvent const &arg)
   {
     ++m_unit_size;
     update_surface();
-    std::cout << "unit size: " << m_unit_size << std::endl;
+    log_debug("unit size: %%", m_unit_size);
   }
   else if(arg.key == OIS::KC_MINUS)
   {
     if(m_unit_size > 1)
     { --m_unit_size; }
     update_surface();
-    std::cout << "unit size: " << m_unit_size << std::endl;
+    log_debug("unit size: %%", m_unit_size);
   }
 
   m_camera_mgr->injectKeyDown(arg);

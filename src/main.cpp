@@ -37,14 +37,13 @@ extern "C"
                  "An exception has occured!",
                  MB_OK | MB_ICONERROR | MB_TASKMODAL);
 #else
-      std::cerr << "An exception has occured: "
-                << e.getFullDescription() << std::endl;
+      log_error("An exception has occured: %%", e.getFullDescription());
 #endif
     }
     catch(std::exception &e)
-    { std::cerr << "An exception was thrown: " << e.what() << std::endl; }
+    { log_error("An exception was thrown: %%", e.what()); }
     catch(...)
-    { std::cerr << "An unkown exception was thrown" << std::endl; }
+    { log_error("An unkown exception was thrown"); }
   }
 
 #ifdef __cplusplus

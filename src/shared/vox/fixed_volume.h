@@ -16,6 +16,7 @@
 #include <future>
 
 #include "region.h"
+#include "log/logger.h"
 
 namespace vox
 {
@@ -23,22 +24,22 @@ namespace vox
   class fixed_volume
   {
     public:
-      using container_t = std::vector<std::vector<std::vector<Value>>>;
-      using container_index_t = std::vector<std::vector<Value>>;
-      using fill_func_t = std::function<Value (vec3<size_t> const&)>;
       using value_t = Value;
+      using container_t = std::vector<std::vector<std::vector<value_t>>>;
+      using container_index_t = std::vector<std::vector<value_t>>;
+      using fill_func_t = std::function<value_t (vec3<size_t> const&)>;
 
       fixed_volume(region const &size)
         : m_region(size)
-      { fill([](vec3<size_t> const&){ return Value{}; }); }
+      { fill([](vec3<size_t> const&){ return value_t{}; }); }
 
       fixed_volume(region const &size, fill_func_t const &func)
         : m_region(size)
       { fill(func); }
 
-      Value& at(size_t const x, size_t const y, size_t const z)
+      value_t& at(size_t const x, size_t const y, size_t const z)
       { return m_data.at(x).at(y).at(z); }
-      Value const& at(size_t const x, size_t const y, size_t const z) const
+      value_t const& at(size_t const x, size_t const y, size_t const z) const
       { return m_data.at(x).at(y).at(z); }
 
       container_index_t& operator [](size_t const index)
@@ -52,7 +53,7 @@ namespace vox
     private:
       void fill(fill_func_t const &func)
       {
-        std::cout << "filling volume" << std::endl;
+        log_info("filling volume");
 
         auto const size(m_region.get_width());
         m_data.resize(size);
@@ -63,10 +64,10 @@ namespace vox
         {
           std::lock_guard<std::mutex> guard(loaded_mutex);
           loaded += chunk;
-          std::cout << "loaded " << (loaded * 100.0f / size) << "%" << std::endl;
+          log_debug("loaded %%%", (loaded * 100.0f / size));
         });
 
-        std::cout << "volume filled" << std::endl;
+        log_info("volume filled");
       }
 
       void fill_region(fill_func_t const &func,
@@ -81,7 +82,7 @@ namespace vox
         auto const width(std::min<size_t>(weighted, (end_x - start_x)));
 
         auto fut(std::async(std::launch::async, 
-                            std::bind(&fixed_volume<Value>::fill_region,
+                            std::bind(&fixed_volume<value_t>::fill_region,
                                       this, func, start_x + width, end_x, report )));
 
         for(size_t x{ start_x }; x < width + start_x; ++x)
