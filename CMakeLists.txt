@@ -78,28 +78,6 @@ if (NOT OGRE_BUILD_PLATFORM_IPHONE)
 	set(OGRE_LIBRARIES ${OGRE_LIBRARIES} ${Boost_LIBRARIES})
 endif()
  
-set(HDRS
-  src/application.h
-  src/game.h
-  src/shared/util/borrowed_ptr.h
-
-  src/shared/vox/triangle.h
-  src/shared/vox/surface_extractor.h
-  src/shared/vox/region.h
-  src/shared/vox/grid_cell.h
-  src/shared/vox/tables.h
-  src/shared/vox/vec3.h
-  src/shared/vox/vertex.h
-  src/shared/vox/fixed_volume.h
-  src/shared/vox/surface.h
-
-  src/shared/ui/surface_factory.h
-  src/shared/ui/window.h
-  src/shared/ui/input_dispatcher.h
-  src/shared/ui/surface.h
-  src/shared/ui/server.h
-)
- 
 set(SRCS
   src/main.cpp
 	src/application.cpp

@@ -99,6 +99,11 @@ namespace notif
       }
 
     private:
+      dispatcher() {}
+      dispatcher(dispatcher const&) = delete;
+      dispatcher(dispatcher &&) = delete;
+      dispatcher& operator =(dispatcher const&) = delete;
+
       std::vector<val_t> m_handlers;
       uint64_t m_tag_counter{};
   };
