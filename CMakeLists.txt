@@ -107,7 +107,10 @@ set(SRCS
   src/shared/ui/window.cpp
   src/shared/ui/input_dispatcher.cpp
   src/shared/ui/surface.cpp
+
   src/shared/log/logger.cpp
+
+  src/shared/notif/pool.cpp
 )
  
 include_directories(

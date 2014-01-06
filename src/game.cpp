@@ -32,6 +32,8 @@
 #include "ui/input_dispatcher.h"
 #include "ui/server.h"
 
+#include "notif/pool.h"
+
 #include "log/logger.h"
 
 game::game()
@@ -44,20 +46,21 @@ game::~game()
 
 void game::create_scene()
 {
-  log_debug("Creating scene");
+  log_debug("creating scene");
   log_scoped_push();
 
   Ogre::Image img;
   img.load("heightmap.jpg", "General");
   log_info("heightmap size: %%x%%", img.getWidth(), img.getHeight());
 
+  log_info("voxelizing...");
+  log_push();
+
   int32_t const size{ static_cast<int32_t>(img.getWidth() * 0.1f) };
   float const scale{ static_cast<float>(size) / img.getWidth() };
   log_info("size: %%", size);
   log_info("scale: %%", scale);
 
-  log_info("voxelizing...");
-  log_push();
   auto const start(std::chrono::system_clock::now());
   m_volume.reset(new vox::fixed_volume<uint8_t>({ size, static_cast<size_t>(256 * 1.5f), size },
   [&](vox::vec3<size_t> const &vec)
@@ -86,6 +89,8 @@ void game::create_scene()
   m_ui_server.reset(new ui::server(m_scene_mgr));
   auto *win(new std::unique_ptr<ui::window>(m_ui_server->create_window("http://duckduckgo.com", 1024, 768)));
   (*win)->focus();
+
+  log_debug("scene created");
 }
 
 void game::update_surface()
@@ -169,6 +174,11 @@ bool game::key_released(OIS::KeyEvent const &arg)
 bool game::frame_rendering_queued(Ogre::FrameEvent const &evt)
 {
   m_ui_server->update();
+
+  /* Process events. */
+  auto &events(notif::pool::get());
+  while(events.poll());
+
   return true;
 }
 

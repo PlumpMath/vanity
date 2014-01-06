@@ -15,6 +15,7 @@
 #include <cstdint>
 #include <thread>
 #include <mutex>
+#include <sstream>
 
 #include "format.h"
 #include "macros.h"
