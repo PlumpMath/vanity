@@ -49,6 +49,7 @@ namespace logging
 
     private:
       void render(verbosity const verb, std::string const &module, std::string const &msg);
+      void render_line(verbosity const verb, std::string const &module, std::string const &msg);
       
       verbosity m_verbosity{ verbosity::debug };
       uint8_t m_push_level{};

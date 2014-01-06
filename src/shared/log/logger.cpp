@@ -91,6 +91,15 @@ namespace logging
     std::lock_guard<std::mutex> const render_lock(m_render_lock);
     std::lock_guard<std::mutex> const thread_ids_lock(m_thread_ids_lock);
 
+    std::stringstream ss(msg);
+    std::string line;
+    while(std::getline(ss, line, '\n'))
+    { render_line(verb, module, line); }
+  }
+
+  void logger::render_line(logger::verbosity const verb,
+                           std::string const &module, std::string const &msg)
+  {
     /* Module */
     std::cout << term::colors::white
       << "[" << module << "]";
