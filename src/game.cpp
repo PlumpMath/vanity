@@ -46,7 +46,7 @@ game::~game()
 
 void game::create_scene()
 {
-  log_debug("creating scene");
+  log_info("creating scene");
   log_scoped_push();
 
   Ogre::Image img;
@@ -56,7 +56,7 @@ void game::create_scene()
   log_info("voxelizing...");
   log_push();
 
-  int32_t const size{ static_cast<int32_t>(img.getWidth() * 0.1f) };
+  int32_t const size{ static_cast<int32_t>(img.getWidth() * 1.0f) };
   float const scale{ static_cast<float>(size) / img.getWidth() };
   log_info("size: %%", size);
   log_info("scale: %%", scale);
@@ -90,7 +90,7 @@ void game::create_scene()
   auto *win(new std::unique_ptr<ui::window>(m_ui_server->create_window("http://duckduckgo.com", 1024, 768)));
   (*win)->focus();
 
-  log_debug("scene created");
+  log_info("scene created");
 }
 
 void game::update_surface()

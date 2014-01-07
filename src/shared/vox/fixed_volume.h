@@ -54,19 +54,31 @@ namespace vox
       void fill(fill_func_t const &func)
       {
         log_info("filling volume");
+        log_push();
 
         auto const size(m_region.get_width());
         m_data.resize(size);
 
         std::mutex loaded_mutex;
         size_t loaded{};
-        fill_region(func, 0, size, [&](size_t const chunk)
+        auto const report([&](size_t const chunk)
         {
           std::lock_guard<std::mutex> guard(loaded_mutex);
           loaded += chunk;
           log_debug("loaded %%%", (loaded * 100.0f / size));
         });
 
+        auto const width(size / m_max_threads);
+        std::vector<std::future<void>> futs;
+        futs.reserve(m_max_threads);
+        for(size_t i{}; i < m_max_threads; ++i)
+        {
+          futs.push_back(std::async(std::launch::async,
+                         std::bind(&fixed_volume<value_t>::fill_region, this,
+                         func, i * width, (i * width) + width, report)));
+        } futs.clear();
+
+        log_pop();
         log_info("volume filled");
       }
 
@@ -77,16 +89,16 @@ namespace vox
         if(start_x == end_x)
         { return; }
 
-        /* Clamp between 64 and 256, but aim for whatever suits 8 threads. */
-        auto const weighted(std::max<size_t>(64, std::min<size_t>(256, (end_x - start_x) / 8)));
-        auto const width(std::min<size_t>(weighted, (end_x - start_x)));
-
-        auto fut(std::async(std::launch::async, 
-                            std::bind(&fixed_volume<value_t>::fill_region,
-                                      this, func, start_x + width, end_x, report )));
-
-        for(size_t x{ start_x }; x < width + start_x; ++x)
+        auto const width(end_x - start_x);
+        size_t report_count{};
+        for(size_t x{ start_x }; x < width + start_x; ++x, ++report_count)
         {
+          if(report_count == m_report_rate)
+          {
+            report(report_count);
+            report_count = 0;
+          }
+
           m_data[x].resize(m_region.get_height());
           for(size_t y{}; y < m_region.get_height(); ++y)
           {
@@ -95,10 +107,12 @@ namespace vox
             { m_data[x][y][z] = func({ x, y, z }); }
           }
         }
-        report(width);
+        report(report_count);
       }
 
       container_t m_data;
       region const m_region;
+      static constexpr size_t m_max_threads{ 8 };
+      static constexpr size_t m_report_rate{ 64 };
   };
 }
