@@ -38,12 +38,14 @@ namespace audio
     {
       auto const t_state(t.get_state());
       bool valid{ false };
-      int dummy[]{ (valid |= (t_state == states), 0)... };
+      int const dummy[]{ (valid |= (t_state == states), 0)... };
+      static_cast<void>(dummy);
 
       if(!valid)
       {
         std::string error("Invalid state ('" + to_string(t_state) + "' is none of:");
         int const dummy[]{ (error += " '" + to_string(states) + "'", 0)... };
+        static_cast<void>(dummy);
         throw std::runtime_error(error + ")");
       }
     }

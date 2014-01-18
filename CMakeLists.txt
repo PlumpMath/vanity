@@ -2,10 +2,6 @@ cmake_minimum_required(VERSION 2.6)
  
 project(vanity)
  
-#set(CMAKE_CXX_COMPILER "g++-4.9")
-#set(CMAKE_CXX_COMPILER "clang++")
-#add_definitions(-stdlib=libc++)
-
 if(WIN32)
 	set(CMAKE_MODULE_PATH "$ENV{OGRE_HOME}/CMake/;${CMAKE_MODULE_PATH}")
 	set(OGRE_SAMPLES_INCLUDEPATH
@@ -78,6 +74,11 @@ if (NOT OGRE_BUILD_PLATFORM_IPHONE)
 	set(OGRE_LIBRARIES ${OGRE_LIBRARIES} ${Boost_LIBRARIES})
 endif()
  
+find_package(OpenAL REQUIRED)
+find_library(OGGVORBIS_LIBRARY
+    NAMES vorbisfile
+)
+
 set(SRCS
   src/main.cpp
 	src/application.cpp
@@ -89,6 +90,15 @@ set(SRCS
   src/shared/log/logger.cpp
 
   src/shared/notif/pool.cpp
+
+  src/shared/audio/capture/device.cpp
+  src/shared/audio/playback/device.cpp
+  src/shared/audio/check.cpp
+  src/shared/audio/ogg/common.cpp
+  src/shared/audio/ogg/file.cpp
+  src/shared/audio/ogg/stream.cpp
+  src/shared/audio/source/finite.cpp
+  src/shared/audio/source/streaming.cpp
 )
  
 include_directories(
@@ -124,6 +134,8 @@ target_link_libraries(vanity ${OGRE_LIBRARIES}
                           ${OIS_LIBRARIES}
                           boost_system
                           ${AWESOMIUM_LIBRARY}
+                          ${OPENAL_LIBRARY}
+                          ${OGGVORBIS_LIBRARY}
 )
  
 file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/dist/bin)

@@ -30,8 +30,6 @@ namespace audio
   {
     namespace detail
     {
-      static bool little_endian();
-
       class file
       {
         public:
