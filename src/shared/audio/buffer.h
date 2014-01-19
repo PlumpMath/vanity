@@ -41,25 +41,25 @@ namespace audio
     struct sample_size<format::mono8>
     {
       using type = uint8_t;
-      static size_t constexpr value{ 1 };
+      static size_t constexpr const value{ 1 };
     };
     template <>
     struct sample_size<format::mono16>
     {
       using type = uint16_t;
-      static size_t constexpr value{ 2 };
+      static size_t constexpr const value{ 2 };
     };
     template <>
     struct sample_size<format::stereo8>
     {
       using type = uint8_t;
-      static size_t constexpr value{ 1 }; 
+      static size_t constexpr const value{ 1 }; 
     };
     template <>
     struct sample_size<format::stereo16>
     {
       using type = uint16_t;
-      static size_t constexpr value{ 2 };
+      static size_t constexpr const value{ 2 };
     };
   }
 
@@ -71,9 +71,9 @@ namespace audio
       using size_type = ALCsizei;
       using data_t = ALubyte;
       using container_t = std::vector<data_t>;
-      static format constexpr format_value{ F };
+      static format constexpr const format_value{ F };
       using sample_type = typename detail::sample_size<F>::type;
-      static size_type constexpr sample_size{ detail::sample_size<F>::value };
+      static size_type constexpr const sample_size{ detail::sample_size<F>::value };
 
       buffer()
         : m_buffer(new buffer_t{}, &buffer::delete_buffer)
@@ -101,13 +101,13 @@ namespace audio
 
       container_t m_data;
       std::unique_ptr<buffer_t, decltype(&buffer::delete_buffer)> m_buffer;
-      static constexpr ALuint m_freq{ 8000 }; /* TODO: Configure. */
+      static constexpr const ALuint m_freq{ 8000 }; /* TODO: Configure. */
   };
 
   template <format F>
   struct buffer_queue
   {
-    static format constexpr value = F;
+    static format constexpr const value = F;
     using data_t = typename buffer<F>::data_t;
 
     buffer_queue() = delete;

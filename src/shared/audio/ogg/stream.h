@@ -61,8 +61,8 @@ namespace audio
         std::unique_ptr<detail::file> m_file;
         std::string m_filename;
 
-        static size_t constexpr m_buffer_count{ 4 };
-        static size_t constexpr m_buff_size{ 4096 };
+        static size_t constexpr const m_buffer_count{ 4 };
+        static size_t constexpr const m_buff_size{ 4096 };
     };
   }
 }

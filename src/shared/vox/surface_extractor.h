@@ -182,7 +182,7 @@ namespace vox
 
       vec3<float> interp(vec3<float> const &p1, vec3<float> const &p2, float valp1, float valp2) const
       {
-        float constexpr ep{ std::numeric_limits<float>::epsilon() };
+        float constexpr const ep{ std::numeric_limits<float>::epsilon() };
 
         if(std::abs(m_iso_level - valp1) < ep)
         { return p1; }

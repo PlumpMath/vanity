@@ -112,7 +112,7 @@ namespace vox
 
       container_t m_data;
       region const m_region;
-      static constexpr size_t m_max_threads{ 8 };
-      static constexpr size_t m_report_rate{ 64 };
+      static constexpr const size_t m_max_threads{ 8 };
+      static constexpr const size_t m_report_rate{ 64 };
   };
 }

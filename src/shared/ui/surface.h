@@ -35,6 +35,6 @@ namespace ui
 
     private:
       Ogre::TexturePtr m_texture;
-      static int32_t constexpr bytes_per_pixel{ 4 }; /* BGRA */
+      static int32_t constexpr const bytes_per_pixel{ 4 }; /* BGRA */
   };
 }

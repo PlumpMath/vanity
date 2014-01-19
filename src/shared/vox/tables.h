@@ -47,7 +47,7 @@
    3--------2     *---2----*
 */
 
-int constexpr edge_table[256] =
+int constexpr const edge_table[256] =
 {
   0x0  , 0x109, 0x203, 0x30a, 0x406, 0x50f, 0x605, 0x70c,
   0x80c, 0x905, 0xa0f, 0xb06, 0xc0a, 0xd03, 0xe09, 0xf00,
@@ -108,7 +108,7 @@ int constexpr edge_table[256] =
   Remember, each intersected edge contains only one surface vertex. The
   vertex triples are listed in counter clockwise order for proper facing.
 */
-int constexpr tri_table[256][16] =
+int constexpr const tri_table[256][16] =
 {
   { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 },
   { 0, 8, 3, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 },

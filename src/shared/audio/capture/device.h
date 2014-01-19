@@ -99,7 +99,7 @@ namespace audio
         std::unique_ptr<device_t, decltype(&alcCaptureCloseDevice)> m_device;
 
         /* The amount of samples to capture before spilling into a buffer. */
-        static ALuint constexpr m_max_samples{ 2048 }; 
+        static ALuint constexpr const m_max_samples{ 2048 }; 
     };
 
     class devices
