@@ -22,7 +22,7 @@ namespace logging
     public:
       variadic_format(std::ostream &os)
         : m_out(os)
-      { }
+      { m_out << std::boolalpha; }
 
       void print(char const * const format)
       {

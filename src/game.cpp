@@ -56,7 +56,7 @@ void game::create_scene()
   log_info("voxelizing...");
   log_push();
 
-  int32_t const size{ static_cast<int32_t>(img.getWidth() * 1.0f) };
+  int32_t const size{ static_cast<int32_t>(img.getWidth() * 0.5f) };
   float const scale{ static_cast<float>(size) / img.getWidth() };
   log_info("size: %%", size);
   log_info("scale: %%", scale);
@@ -87,7 +87,8 @@ void game::create_scene()
   light->setPosition(size / 2.0f, size, size / 2.0f);
 
   m_ui_server.reset(new ui::server(m_scene_mgr));
-  auto *win(new std::unique_ptr<ui::window>(m_ui_server->create_window("http://duckduckgo.com", 1024, 768)));
+  //auto *win(new std::unique_ptr<ui::window>(m_ui_server->create_window("http://duckduckgo.com", 1024, 768)));
+  auto *win(new std::unique_ptr<ui::window>(m_ui_server->create_window("file:///home/jeaye/projects/vanity/dist/ui/header/index.html", 1024, 100)));
   (*win)->focus();
 
   log_info("scene created");

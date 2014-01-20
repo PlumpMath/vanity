@@ -22,6 +22,7 @@
 #include <Awesomium/WebCore.h>
 
 #include "util/borrowed_ptr.h"
+#include "dispatch/reciever.h"
 
 namespace ui
 {
@@ -49,6 +50,8 @@ namespace ui
       void unfocus();
 
     private:
+      void init_js();
+
       std::string m_url;
       Ogre::TexturePtr m_texture;
       borrowed_ptr<Ogre::Entity> m_entity;
@@ -57,6 +60,13 @@ namespace ui
       std::unique_ptr<Awesomium::WebView,
                       decltype(std::mem_fn(&Awesomium::WebView::Destroy))> m_web_view;
       borrowed_ptr<surface> m_surface;
+      dispatch::reciever m_reciever;
+
+      /* The global 'vanity' JS object on which we add functions
+       * that affect the whole engine. */
+      Awesomium::JSValue m_global_obj;
+      /* A JS object specifically for interfacing with this window. */
+      Awesomium::JSValue m_win_obj;
   };
 
   inline bool operator ==(window const &lhs, window const &rhs)

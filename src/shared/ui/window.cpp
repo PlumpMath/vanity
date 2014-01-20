@@ -13,6 +13,8 @@
 #include "input_dispatcher.h"
 #include "surface.h"
 #include "server.h"
+#include "log/logger.h"
+#include "dispatch/sender.h"
 
 #include <Awesomium/STLHelpers.h>
 
@@ -53,8 +55,13 @@ namespace ui
     Awesomium::WebURL const web_url{ Awesomium::WSLit(url.c_str()) };
     m_web_view->LoadURL(web_url);
 
+    /* Setup the JS system for this window (globals, functions, etc). */
+    init_js();
+
     while(m_web_view->IsLoading())
     { m_server->get_web_core()->Update(); }
+
+    m_web_view->set_js_method_handler(&m_reciever);
 
     m_surface = static_cast<surface*>(m_web_view->surface());
 
@@ -92,6 +99,22 @@ namespace ui
     Ogre::SceneNode * const node{ sm->getRootSceneNode()->createChildSceneNode("ui_node_" + url) };
     node->attachObject(m_entity);
     node->setPosition(400.0f, 0.0f, 0.0f);
+  }
+
+  void window::init_js()
+  {
+    m_global_obj = m_web_view->CreateGlobalJavascriptObject(Awesomium::WSLit("vanity"));
+    m_win_obj = m_web_view->CreateGlobalJavascriptObject(Awesomium::WSLit("vanity.window"));
+
+    /* EXAMPLE */
+    /* Subscribe (create a new function on an object). */
+    std::function<void ()> const get_url([&]()
+    { log_debug("window url is: %%", Awesomium::ToString(m_web_view->url().spec())); });
+    m_reciever.subscribe(m_win_obj.ToObject(), "get_url", get_url);
+
+    /* Invoke (call a function on an object, may or may not be C++). */
+    dispatch::sender::post(borrowed_ptr<Awesomium::WebView>{m_web_view.get()},
+                           "vanity.window.get_url");
   }
 
   void window::key_pressed(OIS::KeyEvent const &arg)
