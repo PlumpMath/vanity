@@ -27,11 +27,11 @@ namespace vox
       using value_t = Value;
       using container_t = std::vector<std::vector<std::vector<value_t>>>;
       using container_index_t = std::vector<std::vector<value_t>>;
-      using fill_func_t = std::function<value_t (vec3<size_t> const&)>;
+      using fill_func_t = std::function<void (fixed_volume&, size_t const, size_t const)>;
 
       fixed_volume(region const &size)
         : m_region(size)
-      { fill([](vec3<size_t> const&){ return value_t{}; }); }
+      { fill([](size_t const, size_t const){ return value_t{}; }); }
 
       fixed_volume(region const &size, fill_func_t const &func)
         : m_region(size)
@@ -90,29 +90,28 @@ namespace vox
         { return; }
 
         auto const width(end_x - start_x);
-        size_t report_count{};
-        for(size_t x{ start_x }; x < width + start_x; ++x, ++report_count)
+        auto const region_height(m_region.get_height());
+        auto const region_depth(m_region.get_depth());
+        for(size_t x{ start_x }; x < width + start_x; ++x)
         {
-          if(report_count == m_report_rate)
-          {
-            report(report_count);
-            report_count = 0;
-          }
-
-          m_data[x].resize(m_region.get_height());
-          for(size_t y{}; y < m_region.get_height(); ++y)
-          {
-            m_data[x][y].resize(m_region.get_depth());
-            for(size_t z{}; z < m_region.get_depth(); ++z)
-            { m_data[x][y][z] = func({ x, y, z }); }
-          }
+          m_data[x].resize(region_height);
+          for(size_t y{}; y < region_height; ++y)
+          { m_data[x][y].resize(region_depth); }
         }
-        report(report_count);
+
+        static constexpr const size_t report_rate{ 64 };
+        auto curr_x(start_x);
+        while(curr_x != end_x)
+        {
+          auto const span_x(std::min(end_x - curr_x, report_rate));;
+          func(*this, curr_x, curr_x + span_x);
+          curr_x += span_x;
+          report(span_x);
+        }
       }
 
       container_t m_data;
       region const m_region;
       static constexpr const size_t m_max_threads{ 8 };
-      static constexpr const size_t m_report_rate{ 64 };
   };
 }

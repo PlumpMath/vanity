@@ -63,10 +63,23 @@ void game::create_scene()
 
   auto const start(std::chrono::system_clock::now());
   m_volume.reset(new vox::fixed_volume<uint8_t>({ size, static_cast<size_t>(256 * 1.5f), size },
-  [&](vox::vec3<size_t> const &vec)
+  [&](vox::fixed_volume<uint8_t> &vol, size_t const start_x, size_t const end_x)
   {
-    auto const col(img.getColourAt((vec.x / scale), (vec.z / scale), 0).r / 2.0f);
-    return (vec.y <= size * col) ? 255 : 0;
+    auto const width(end_x - start_x);
+    size_t const region_height(vol.get_region().get_height());
+    size_t const region_depth(vol.get_region().get_depth());
+
+    for(size_t x{ start_x }; x < width + start_x; ++x)
+    {
+      for(size_t y{}; y < region_height; ++y)
+      {
+        for(size_t z{}; z < region_depth; ++z)
+        {
+          auto const col(img.getColourAt((x / scale), (z / scale), 0).r / 2.0f);
+          vol[x][y][z] = (y <= size * col) ? 255 : 0;
+        }
+      }
+    }
   }));
   auto const end(std::chrono::system_clock::now());
   log_pop();
