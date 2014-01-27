@@ -11,6 +11,8 @@
 
 #pragma once
 
+#include <stdexcept>
+
 /* Message logging. */
 #define log_debug(...) \
 { \
@@ -40,9 +42,9 @@
   auto const scoped_push##__LINE__((logging::logger::scoped_push()));
 
 /* Assertions. */
-#define log_fail(message) \
-  log_error(message); \
-  assert(false);
-#define log_assert(condition, message) \
+#define log_fail(...) \
+  log_error(__VA_ARGS__); \
+  throw std::runtime_error("assertion failed");
+#define log_assert(condition, ...) \
   if(!(condition)) \
-  { log_fail(message); } 
+  { log_fail(__VA_ARGS__); } 

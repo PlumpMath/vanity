@@ -71,8 +71,8 @@ namespace logging
     auto const found_src(module.find(src));
     if(found_src != std::string::npos)
     { out = module.substr(found_src + src.size()); }
-    else
-    { throw std::runtime_error("Logging source file is out-of-source"); }
+    else /* Out of source. */
+    { return module; }
 
     /* Remove the extension. */
     auto const found_extension(out.find_last_of('.'));
