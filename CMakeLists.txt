@@ -89,8 +89,6 @@ set(SRCS
 
   src/shared/log/logger.cpp
 
-  src/shared/notif/pool.cpp
-
   src/shared/audio/capture/device.cpp
   src/shared/audio/playback/device.cpp
   src/shared/audio/check.cpp
@@ -104,6 +102,8 @@ set(SRCS
 include_directories(
   ${OIS_INCLUDE_DIRS}
 	${OGRE_INCLUDE_DIRS}
+  /usr/include/OGRE/Overlay
+
   src
   src/shared
 

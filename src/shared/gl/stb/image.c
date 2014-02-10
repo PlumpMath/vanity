@@ -1729,11 +1729,10 @@ static uint8 *resample_row_hv_2(uint8 *out, uint8 *in_near, uint8 *in_far, int w
    return out;
 }
 
-static uint8 *resample_row_generic(uint8 *out, uint8 *in_near, uint8 *in_far, int w, int hs)
+static uint8 *resample_row_generic(uint8 *out, uint8 *in_near, uint8 *, int w, int hs)
 {
    // resample with nearest-neighbor
    int i,j;
-   in_far = in_far;
    for (i=0; i < w; ++i)
       for (j=0; j < hs; ++j)
          out[i*hs+j] = in_near[i];
@@ -4173,7 +4172,7 @@ static uint8 *stbi_gif_load_next(stbi *s, stbi_gif *g, int *comp, int req_comp)
 static stbi_uc *stbi_gif_load(stbi *s, int *x, int *y, int *comp, int req_comp)
 {
    uint8 *u = 0;
-   stbi_gif g={0};
+   stbi_gif g{};
 
    u = stbi_gif_load_next(s, &g, comp, req_comp);
    if (u == (void *) 1) u = 0;  // end of animated gif marker

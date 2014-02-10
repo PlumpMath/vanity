@@ -14,55 +14,27 @@
 #pragma once
 
 #include <vector>
+#include <thread>
 
 #include "core.h"
 #include "log/logger.h"
 
 #if VANITY_DEBUG
 #define glCheck(func) \
-    func; \
-    gl::check_internal(#func, __FILE__, __LINE__)
+  if(!gl::check_thread()) \
+  { log_fail("Not on GL thread: " #func); } \
+  func; \
+  gl::check_internal(#func, __FILE__, __LINE__)
 #else
 #define glCheck(func) func
 #endif
 
 namespace gl
 {
-  static inline char const * const error_internal(GLenum const err) 
-  {
-    switch(err)
-    {
-      case GL_INVALID_ENUM:
-        return "Invalid enum";
-      case GL_INVALID_VALUE:
-        return "Invalid value";
-      case GL_INVALID_OPERATION:
-        return "Invalid operation";
-      case GL_STACK_OVERFLOW:
-        return "Stack overflow";
-      case GL_STACK_UNDERFLOW:
-        return "Stack underflow";
-      case GL_OUT_OF_MEMORY:
-        return "Out of memory";
-      default:
-        return "Unknown error";
-    }
-  }
+  /* Allows verification that GL calls are made on the GL thread. */
+  void register_thread();
+  bool check_thread();
 
-  static inline void check_internal(char const * const func, char const * const file, size_t const line)
-  {
-    std::vector<GLenum> errors;
-    while(true)
-    {
-      GLenum const err{ glGetError() };
-      if(err == GL_NO_ERROR)
-      { break; }
-      errors.push_back(err);
-    }
-
-    for(auto it(errors.cbegin()); it != errors.cend(); ++it)
-    { log_error("OpenGL error %% (%%) at %%:%% - %%", *it, error_internal(*it), file, line, func); }
-
-    log_assert(errors.size() == 0, "OpenGL error(s)!");
-  }
+  char const* error_internal(GLenum const err);
+  void check_internal(char const * const func, char const * const file, size_t const line);
 }

@@ -46,7 +46,7 @@ namespace notif
       tag_t m_tag{};
   };
 
-  template <typename T>
+  template <typename Owner, typename T>
   class dispatcher
   {
     public:
@@ -99,10 +99,11 @@ namespace notif
       }
 
     private:
-      dispatcher() {}
+      dispatcher() = default;
       dispatcher(dispatcher const&) = delete;
       dispatcher(dispatcher &&) = delete;
       dispatcher& operator =(dispatcher const&) = delete;
+      dispatcher& operator =(dispatcher &&) = delete;
 
       std::vector<val_t> m_handlers;
       uint64_t m_tag_counter{};

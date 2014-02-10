@@ -20,6 +20,7 @@
 #include <GLFW/glfw3.h>
 
 #include "core.h"
+#include "input/dispatcher.h"
 
 namespace gl
 {
@@ -29,16 +30,26 @@ namespace gl
       struct frame_buffer_size
       { size_t width, height; };
 
+      window() = delete;
       window(size_t const width, size_t const height)
-        : m_win(nullptr, &glfwDestroyWindow)
-      { m_win.reset(glfwCreateWindow(width, height, "", nullptr, nullptr)); }
+        : m_win(glfwCreateWindow(width, height, "", nullptr, nullptr), &glfwDestroyWindow)
+        , m_input_dispatcher(this)
+      { }
       window(window const&) = delete;
       window(window &&) = default;
       window& operator =(window const&) = delete;
       window& operator =(window &&) = default;
 
+      borrowed_ptr<GLFWwindow> get_window() const
+      { return m_win.get(); }
       bool get_should_close() const
       { return glfwWindowShouldClose(m_win.get()); }
+
+      input::dispatcher& get_input_dispatcher()
+      { return m_input_dispatcher; }
+      input::dispatcher const& get_input_dispatcher() const
+      { return m_input_dispatcher; }
+
       frame_buffer_size get_frame_buffer_size() const
       {
         int width{}, height{};
@@ -52,7 +63,10 @@ namespace gl
       { glfwSetWindowTitle(m_win.get(), title.c_str()); }
 
       void make_current()
-      { glfwMakeContextCurrent(m_win.get()); }
+      {
+        glfwMakeContextCurrent(m_win.get());
+        log_assert(glfwGetCurrentContext(), "No current GL context");
+      }
       void swap_buffers()
       { glfwSwapBuffers(m_win.get()); }
 
@@ -62,6 +76,7 @@ namespace gl
       { glfwHideWindow(m_win.get()); }
 
     private:
-      std::unique_ptr<GLFWwindow, decltype(&glfwDestroyWindow)> m_win;
+      std::unique_ptr<GLFWwindow, decltype(&glfwDestroyWindow)> const m_win;
+      input::dispatcher m_input_dispatcher;
   };
 }

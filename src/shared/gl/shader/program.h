@@ -66,7 +66,6 @@ namespace gl
         fragment_step m_frag_step;
 
         bool m_bound{ false };
-        bool m_valid{ false };
     };
 
 #if VANITY_DEBUG

@@ -115,18 +115,16 @@ namespace logging
     switch(verb)
     {
       case logger::verbosity::debug:
-        {
-          std::cout << term::colors::green << " debug => ";
-        } break;
+        std::cout << term::colors::green << " debug => ";
+        break;
       case logger::verbosity::info:
-        {
-          std::cout << term::colors::yellow << " info => ";
-        } break;
+        std::cout << term::colors::yellow << " info => ";
+        break;
       case logger::verbosity::error:
-        {
-          std::cout << term::colors::red << " error => ";
-        } break;
+        std::cout << term::colors::red << " error => ";
+        break;
 
+      case logger::verbosity::none:
       default:
         { throw std::invalid_argument("Unknown verbosity level"); }
     }

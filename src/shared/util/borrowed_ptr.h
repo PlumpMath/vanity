@@ -11,6 +11,8 @@
 
 #pragma once
 
+#include "log/logger.h"
+
 template <typename T>
 class borrowed_ptr
 {
@@ -28,7 +30,7 @@ class borrowed_ptr
 
     ~borrowed_ptr() = default;
 
-    T* get()
+    T* get() const
     { return m_ptr; }
 
     void reset(T * const ptr)
@@ -48,13 +50,25 @@ class borrowed_ptr
     { return m_ptr; }
 
     T& operator *()
-    { assert(m_ptr); return *m_ptr; }
+    {
+      log_assert(m_ptr, "Invalid borrowed pointer");
+      return *m_ptr;
+    }
     T& operator *() const
-    { assert(m_ptr); return *m_ptr; }
+    {
+      log_assert(m_ptr, "Invalid borrowed pointer");
+      return *m_ptr;
+    }
     T* operator ->()
-    { assert(m_ptr); return m_ptr; }
+    {
+      log_assert(m_ptr, "Invalid borrowed pointer");
+      return m_ptr;
+    }
     T* operator ->() const
-    { assert(m_ptr); return m_ptr; }
+    {
+      log_assert(m_ptr, "Invalid borrowed pointer");
+      return m_ptr;
+    }
 
     borrowed_ptr<T>& operator =(T * const ptr)
     { m_ptr = ptr; return *this; }
@@ -72,22 +86,22 @@ class borrowed_ptr
       return *this;
     }
 
-    template <typename C>
-    bool operator ==(C const &ptr) const
-    { return m_ptr == ptr; }
-    bool operator ==(borrowed_ptr<T> const &ptr) const
-    { return m_ptr == ptr.m_ptr; }
-
-    template <typename C>
-    bool operator !=(C const &ptr) const
-    { return m_ptr != ptr; }
-    bool operator !=(borrowed_ptr<T> const &ptr) const
-    { return m_ptr != ptr.m_ptr; }
-
   private:
     T *m_ptr{ nullptr };
 };
 
+template <typename T, typename C>
+bool operator ==(borrowed_ptr<T> const &lhs, C const &rhs)
+{ return lhs.get() == rhs; }
+
+template <typename T, typename C>
+bool operator !=(borrowed_ptr<T> const &lhs, C const &rhs)
+{ return lhs.get() != rhs; }
+
+template <typename T, typename C>
+bool operator <(borrowed_ptr<T> const &lhs, C const &rhs)
+{ return lhs.get() < rhs; }
+
 template <typename T>
 std::ostream& operator <<(std::ostream &stream, borrowed_ptr<T> const &ptr)
-{ return stream << ptr.m_ptr; }
+{ return stream << ptr.get(); }

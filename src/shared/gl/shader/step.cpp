@@ -8,6 +8,7 @@
 */
 
 #include "step.h"
+#include <array>
 
 namespace gl
 {

@@ -190,7 +190,7 @@ bool game::frame_rendering_queued(Ogre::FrameEvent const &evt)
   m_ui_server->update();
 
   /* Process events. */
-  auto &events(notif::pool::get());
+  auto &events(notif::pool<game>::global());
   while(events.poll());
 
   return true;
